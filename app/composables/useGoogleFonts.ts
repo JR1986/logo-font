@@ -1,0 +1,75 @@
+import { ref, computed } from 'vue'
+import type { FontCategory } from '~/types'
+import { 
+  FONT_CATEGORIES, 
+  getAllFonts, 
+  getFontCategory,
+  DEFAULT_FONT,
+  DEFAULT_FONT_SIZE,
+  DEFAULT_FONT_WEIGHT
+} from '~/utils/fonts'
+
+/**
+ * Composable for managing Google Fonts
+ */
+export function useGoogleFonts() {
+  const selectedFont = ref<string>(DEFAULT_FONT)
+  const fontSize = ref<number>(DEFAULT_FONT_SIZE)
+  const fontWeight = ref<number>(DEFAULT_FONT_WEIGHT)
+
+  const fontCategories = FONT_CATEGORIES
+  const allFonts = getAllFonts()
+
+  const selectedFontCategory = computed<FontCategory | null>(() => {
+    return getFontCategory(selectedFont.value)
+  })
+
+  /**
+   * Load a Google Font dynamically via stylesheet
+   */
+  function loadFont(fontName?: string): void {
+    const font = fontName ?? selectedFont.value
+    const encodedFontName = font.replace(/ /g, '+')
+    const linkId = 'google-font-link'
+    
+    // Remove existing font link if present
+    const existingLink = document.getElementById(linkId)
+    if (existingLink) {
+      existingLink.remove()
+    }
+    
+    // Create new font link
+    const link = document.createElement('link')
+    link.id = linkId
+    link.rel = 'stylesheet'
+    link.href = `https://fonts.googleapis.com/css2?family=${encodedFontName}:wght@100;200;300;400;500;600;700;800;900&display=swap`
+    document.head.appendChild(link)
+  }
+
+  /**
+   * Select a random font (different from current)
+   */
+  function selectRandomFont(): void {
+    const currentIndex = allFonts.indexOf(selectedFont.value)
+    let randomIndex = currentIndex
+    
+    // Ensure we get a different font
+    while (randomIndex === currentIndex) {
+      randomIndex = Math.floor(Math.random() * allFonts.length)
+    }
+    
+    selectedFont.value = allFonts[randomIndex]
+    loadFont()
+  }
+
+  return {
+    selectedFont,
+    fontSize,
+    fontWeight,
+    fontCategories,
+    allFonts,
+    selectedFontCategory,
+    loadFont,
+    selectRandomFont
+  }
+}

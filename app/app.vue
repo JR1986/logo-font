@@ -12,41 +12,7 @@
       <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
         <div class="grid md:grid-cols-3 gap-6">
           <!-- Logo Upload -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Upload Logo
-            </label>
-            <div 
-              class="relative w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer flex items-center justify-center"
-              @click="triggerFileInput"
-              @dragover.prevent="isDragging = true"
-              @dragleave="isDragging = false"
-              @drop.prevent="handleDrop"
-              :class="{ 'border-blue-500 bg-blue-50': isDragging }"
-            >
-              <input
-                ref="fileInput"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                @change="handleFileSelect"
-              />
-              <div v-if="!uploadedLogo" class="text-center">
-                <svg class="w-8 h-8 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p class="text-sm text-slate-500">Click or drag to upload</p>
-              </div>
-              <img v-else :src="uploadedLogo" alt="Uploaded logo" class="max-h-28 max-w-full object-contain" />
-            </div>
-            <button 
-              v-if="uploadedLogo" 
-              @click="clearLogo"
-              class="mt-2 text-sm text-red-500 hover:text-red-700 transition-colors"
-            >
-              Remove logo
-            </button>
-          </div>
+          <LogoUpload v-model="uploadedLogo" />
 
           <!-- Text Input -->
           <div>
@@ -63,274 +29,66 @@
           </div>
 
           <!-- Font Selector -->
-          <div>
-            <label for="font-select" class="block text-sm font-semibold text-slate-700 mb-2">
-              Select Font
-            </label>
-            <select
-              id="font-select"
-              v-model="selectedFont"
-              @change="loadFont"
-              class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-white cursor-pointer"
-            >
-              <optgroup v-for="(fontList, category) in fontCategories" :key="category" :label="category">
-                <option v-for="font in fontList" :key="font" :value="font">
-                  {{ font }}
-                </option>
-              </optgroup>
-            </select>
-          </div>
+          <FontSelector 
+            v-model="selectedFont" 
+            :font-categories="fontCategories"
+            @update:model-value="loadFont"
+          />
         </div>
 
-        <!-- Font Size & Weight Sliders -->
-        <div class="grid md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
-          <!-- Font Size Slider -->
-          <div>
-            <label for="font-size" class="block text-sm font-semibold text-slate-700 mb-2">
-              Font Size: {{ fontSize }}px
-            </label>
-            <input
-              id="font-size"
-              v-model="fontSize"
-              type="range"
-              min="16"
-              max="120"
-              class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-
-          <!-- Font Weight Slider -->
-          <div>
-            <label for="font-weight" class="block text-sm font-semibold text-slate-700 mb-2">
-              Font Weight: {{ fontWeight }}
-            </label>
-            <input
-              id="font-weight"
-              v-model="fontWeight"
-              type="range"
-              min="100"
-              max="900"
-              step="100"
-              class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-            />
-          </div>
-        </div>
+        <!-- Font Controls -->
+        <FontControls 
+          v-model:font-size="fontSize" 
+          v-model:font-weight="fontWeight" 
+        />
       </div>
 
-      <!-- Logo + Font Preview Card -->
-      <div class="bg-white rounded-2xl shadow-xl p-12">
-        <p class="text-sm font-semibold text-slate-500 mb-8 uppercase tracking-wide text-center">
-          Live Preview
-        </p>
-        
-        <!-- Inline Logo Mark Preview -->
-        <div class="flex items-center justify-center gap-4 p-8 bg-slate-50 rounded-xl min-h-48">
-          <!-- Logo -->
-          <img 
-            v-if="uploadedLogo" 
-            :src="uploadedLogo" 
-            alt="Logo preview" 
-            class="h-16 md:h-20 w-auto object-contain"
-          />
-          <img 
-            v-else 
-            src="https://placehold.co/80x80/e2e8f0/94a3b8?text=Logo" 
-            alt="Placeholder logo" 
-            class="h-16 md:h-20 w-auto object-contain rounded-lg"
-          />
-
-          <!-- Font Text -->
-          <div
-            :style="{ fontFamily: selectedFont, fontSize: fontSize + 'px', fontWeight: fontWeight }"
-            class="text-slate-800 transition-all duration-300"
-          >
-            {{ previewText }}
-          </div>
-        </div>
-        
-        <p class="text-sm text-slate-400 mt-8 text-center">
-          Font: <span class="font-semibold">{{ selectedFont }}</span> <span class="text-slate-300">({{ selectedFontCategory }})</span>
-        </p>
-      </div>
+      <!-- Preview Area -->
+      <PreviewArea
+        :logo="uploadedLogo"
+        :text="previewText"
+        :font="selectedFont"
+        :font-size="fontSize"
+        :font-weight="fontWeight"
+        :font-category="selectedFontCategory"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useGoogleFonts } from '~/composables/useGoogleFonts'
+import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
+
+// Components are auto-imported by Nuxt
 
 // State
 const previewText = ref('Company Name')
-const selectedFont = ref('Roboto')
 const uploadedLogo = ref<string | null>(null)
-const isDragging = ref(false)
-const fileInput = ref<HTMLInputElement | null>(null)
-const fontSize = ref(48)
-const fontWeight = ref(400)
 
-// Font Categories
-const fontCategories = ref({
-  'Sans-Serif': [
-    'Roboto',
-    'Open Sans',
-    'Lato',
-    'Montserrat',
-    'Poppins',
-    'Raleway',
-    'Inter',
-    'Oswald',
-    'Source Sans Pro',
-    'Nunito',
-    'Ubuntu',
-    'PT Sans',
-    'Mukta',
-    'Rubik',
-    'Work Sans',
-    'Quicksand',
-    'Outfit',
-    'DM Sans',
-    'Manrope',
-    'Space Grotesk',
-    'Barlow',
-    'Exo 2',
-    'Kanit',
-    'Titillium Web',
-    'Josefin Sans',
-    'Archivo',
-    'Lexend',
-    'Figtree',
-    'Plus Jakarta Sans'
-  ],
-  'Serif': [
-    'Playfair Display',
-    'Merriweather',
-    'Crimson Text',
-    'Libre Baskerville',
-    'EB Garamond',
-    'Cormorant Garamond',
-    'Lora',
-    'PT Serif',
-    'Source Serif Pro',
-    'Bitter',
-    'Spectral',
-    'Vollkorn'
-  ],
-  'Display': [
-    'Bebas Neue',
-    'Righteous',
-    'Lobster',
-    'Pacifico',
-    'Alfa Slab One',
-    'Permanent Marker',
-    'Bungee',
-    'Orbitron'
-  ],
-  'Handwriting': [
-    'Dancing Script',
-    'Caveat',
-    'Satisfy',
-    'Great Vibes',
-    'Parisienne',
-    'Sacramento'
-  ]
-})
+// Google Fonts
+const {
+  selectedFont,
+  fontSize,
+  fontWeight,
+  fontCategories,
+  selectedFontCategory,
+  loadFont,
+  selectRandomFont
+} = useGoogleFonts()
 
-// Flat list of all fonts for random selection
-const allFonts = computed(() => Object.values(fontCategories.value).flat())
-
-// Get category of selected font
-const selectedFontCategory = computed(() => {
-  for (const [category, fonts] of Object.entries(fontCategories.value)) {
-    if (fonts.includes(selectedFont.value)) {
-      return category
-    }
+// Keyboard shortcuts
+useKeyboardShortcuts([
+  {
+    code: 'Space',
+    handler: selectRandomFont,
+    preventDefault: true
   }
-  return 'Unknown'
-})
+])
 
-// Load Google Font dynamically
-const loadFont = () => {
-  const fontName = selectedFont.value.replace(/ /g, '+')
-  const linkId = 'google-font-link'
-  
-  // Remove existing font link if present
-  const existingLink = document.getElementById(linkId)
-  if (existingLink) {
-    existingLink.remove()
-  }
-  
-  // Create new font link
-  const link = document.createElement('link')
-  link.id = linkId
-  link.rel = 'stylesheet'
-  link.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@100;200;300;400;500;600;700;800;900&display=swap`
-  document.head.appendChild(link)
-}
-
-// File upload handlers
-const triggerFileInput = () => {
-  fileInput.value?.click()
-}
-
-const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const file = target.files?.[0]
-  if (file) {
-    processFile(file)
-  }
-}
-
-const handleDrop = (event: DragEvent) => {
-  isDragging.value = false
-  const file = event.dataTransfer?.files[0]
-  if (file && file.type.startsWith('image/')) {
-    processFile(file)
-  }
-}
-
-const processFile = (file: File) => {
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    uploadedLogo.value = e.target?.result as string
-  }
-  reader.readAsDataURL(file)
-}
-
-const clearLogo = () => {
-  uploadedLogo.value = null
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
-// Random font selection with spacebar
-const selectRandomFont = () => {
-  const currentIndex = allFonts.value.indexOf(selectedFont.value)
-  let randomIndex = currentIndex
-  // Ensure we get a different font
-  while (randomIndex === currentIndex) {
-    randomIndex = Math.floor(Math.random() * allFonts.value.length)
-  }
-  selectedFont.value = allFonts.value[randomIndex] as string
-  loadFont()
-}
-
-const handleKeyDown = (event: KeyboardEvent) => {
-  // Only trigger if not typing in an input field
-  if (event.code === 'Space' && event.target === document.body) {
-    event.preventDefault()
-    selectRandomFont()
-  }
-}
-
-// Load initial font on mount and add keyboard listener
+// Load initial font
 onMounted(() => {
   loadFont()
-  window.addEventListener('keydown', handleKeyDown)
-})
-
-// Cleanup keyboard listener
-onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>
