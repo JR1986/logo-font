@@ -73,9 +73,11 @@
               @change="loadFont"
               class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all bg-white cursor-pointer"
             >
-              <option v-for="font in fonts" :key="font" :value="font">
-                {{ font }}
-              </option>
+              <optgroup v-for="(fontList, category) in fontCategories" :key="category" :label="category">
+                <option v-for="font in fontList" :key="font" :value="font">
+                  {{ font }}
+                </option>
+              </optgroup>
             </select>
           </div>
         </div>
@@ -147,7 +149,7 @@
         </div>
         
         <p class="text-sm text-slate-400 mt-8 text-center">
-          Font: <span class="font-semibold">{{ selectedFont }}</span>
+          Font: <span class="font-semibold">{{ selectedFont }}</span> <span class="text-slate-300">({{ selectedFontCategory }})</span>
         </p>
       </div>
     </div>
@@ -155,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 // State
 const previewText = ref('Company Name')
@@ -166,29 +168,85 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const fontSize = ref(48)
 const fontWeight = ref(400)
 
-// Popular Google Fonts
-const fonts = ref([
-  'Roboto',
-  'Open Sans',
-  'Lato',
-  'Montserrat',
-  'Poppins',
-  'Raleway',
-  'Inter',
-  'Playfair Display',
-  'Merriweather',
-  'Oswald',
-  'Source Sans Pro',
-  'Nunito',
-  'Ubuntu',
-  'PT Sans',
-  'Mukta',
-  'Rubik',
-  'Work Sans',
-  'Crimson Text',
-  'Bebas Neue',
-  'Dancing Script'
-])
+// Font Categories
+const fontCategories = ref({
+  'Sans-Serif': [
+    'Roboto',
+    'Open Sans',
+    'Lato',
+    'Montserrat',
+    'Poppins',
+    'Raleway',
+    'Inter',
+    'Oswald',
+    'Source Sans Pro',
+    'Nunito',
+    'Ubuntu',
+    'PT Sans',
+    'Mukta',
+    'Rubik',
+    'Work Sans',
+    'Quicksand',
+    'Outfit',
+    'DM Sans',
+    'Manrope',
+    'Space Grotesk',
+    'Barlow',
+    'Exo 2',
+    'Kanit',
+    'Titillium Web',
+    'Josefin Sans',
+    'Archivo',
+    'Lexend',
+    'Figtree',
+    'Plus Jakarta Sans'
+  ],
+  'Serif': [
+    'Playfair Display',
+    'Merriweather',
+    'Crimson Text',
+    'Libre Baskerville',
+    'EB Garamond',
+    'Cormorant Garamond',
+    'Lora',
+    'PT Serif',
+    'Source Serif Pro',
+    'Bitter',
+    'Spectral',
+    'Vollkorn'
+  ],
+  'Display': [
+    'Bebas Neue',
+    'Righteous',
+    'Lobster',
+    'Pacifico',
+    'Alfa Slab One',
+    'Permanent Marker',
+    'Bungee',
+    'Orbitron'
+  ],
+  'Handwriting': [
+    'Dancing Script',
+    'Caveat',
+    'Satisfy',
+    'Great Vibes',
+    'Parisienne',
+    'Sacramento'
+  ]
+})
+
+// Flat list of all fonts for random selection
+const allFonts = computed(() => Object.values(fontCategories.value).flat())
+
+// Get category of selected font
+const selectedFontCategory = computed(() => {
+  for (const [category, fonts] of Object.entries(fontCategories.value)) {
+    if (fonts.includes(selectedFont.value)) {
+      return category
+    }
+  }
+  return 'Unknown'
+})
 
 // Load Google Font dynamically
 const loadFont = () => {
@@ -247,13 +305,13 @@ const clearLogo = () => {
 
 // Random font selection with spacebar
 const selectRandomFont = () => {
-  const currentIndex = fonts.value.indexOf(selectedFont.value)
+  const currentIndex = allFonts.value.indexOf(selectedFont.value)
   let randomIndex = currentIndex
   // Ensure we get a different font
   while (randomIndex === currentIndex) {
-    randomIndex = Math.floor(Math.random() * fonts.value.length)
+    randomIndex = Math.floor(Math.random() * allFonts.value.length)
   }
-  selectedFont.value = fonts.value[randomIndex] as string
+  selectedFont.value = allFonts.value[randomIndex] as string
   loadFont()
 }
 
