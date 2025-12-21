@@ -1,8 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import PreviewArea from '~/components/PreviewArea.vue'
+import PreviewArea from '../../app/components/PreviewArea.vue'
 
 describe('PreviewArea', () => {
+  let wrapper: any
   const defaultProps = {
     logo: null,
     text: 'Company Name',
@@ -13,11 +14,13 @@ describe('PreviewArea', () => {
     fontCategory: 'Sans Serif'
   }
 
-  it('renders text with correct styles', () => {
-    const wrapper = mount(PreviewArea, {
+  beforeEach(() => {
+    wrapper = mount(PreviewArea, {
       props: defaultProps
     })
+  })
 
+  it('renders text with correct styles', () => {
     const textElement = wrapper.find('.transition-all')
     expect(textElement.text()).toBe('Company Name')
     
@@ -28,13 +31,8 @@ describe('PreviewArea', () => {
     expect(style).toContain('color: #000000')
   })
 
-  it('renders logo when provided', () => {
-    const wrapper = mount(PreviewArea, {
-      props: {
-        ...defaultProps,
-        logo: 'logo.png'
-      }
-    })
+  it('renders logo when provided', async () => {
+    await wrapper.setProps({ logo: 'logo.png' })
 
     const img = wrapper.find('img[alt="Logo preview"]')
     expect(img.exists()).toBe(true)
@@ -42,10 +40,6 @@ describe('PreviewArea', () => {
   })
 
   it('renders font info', () => {
-    const wrapper = mount(PreviewArea, {
-      props: defaultProps
-    })
-
     expect(wrapper.text()).toContain('Font: Roboto')
     expect(wrapper.text()).toContain('(Sans Serif)')
   })
