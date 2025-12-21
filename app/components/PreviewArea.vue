@@ -23,7 +23,7 @@
       <!-- Font Text -->
       <div
         :style="fontStyle"
-        class="text-slate-800 transition-all duration-300"
+        class="transition-all duration-300"
       >
         {{ text }}
       </div>
@@ -46,6 +46,7 @@ interface Props {
   font: string
   fontSize: number
   fontWeight: number
+  fontColor: string
   fontCategory: string | null
 }
 
@@ -54,6 +55,7 @@ const props = defineProps<Props>()
 const fontStyle = computed<CSSProperties>(() => ({
   fontFamily: props.font,
   fontSize: `${props.fontSize}px`,
-  fontWeight: props.fontWeight
+  fontWeight: props.fontWeight,
+  color: props.fontColor
 }))
 </script>

@@ -39,7 +39,8 @@
         <!-- Font Controls -->
         <FontControls 
           v-model:font-size="fontSize" 
-          v-model:font-weight="fontWeight" 
+          v-model:font-weight="fontWeight"
+          v-model:font-color="fontColor"
         />
       </div>
 
@@ -50,6 +51,7 @@
         :font="selectedFont"
         :font-size="fontSize"
         :font-weight="fontWeight"
+        :font-color="fontColor"
         :font-category="selectedFontCategory"
       />
     </div>
@@ -72,6 +74,7 @@ const {
   selectedFont,
   fontSize,
   fontWeight,
+  fontColor,
   fontCategories,
   selectedFontCategory,
   loadFont,

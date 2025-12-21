@@ -32,6 +32,23 @@
         class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
       />
     </div>
+
+    <!-- Font Color Picker -->
+    <div>
+      <label for="font-color" class="block text-sm font-semibold text-slate-700 mb-2">
+        Font Color
+      </label>
+      <div class="flex items-center gap-3">
+        <input
+          id="font-color"
+          :value="fontColor"
+          @input="handleColorChange"
+          type="color"
+          class="h-10 w-20 p-1 bg-white border border-slate-200 rounded cursor-pointer"
+        />
+        <span class="text-sm font-mono text-slate-500">{{ fontColor }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -39,11 +56,13 @@
 interface Props {
   fontSize: number
   fontWeight: number
+  fontColor: string
 }
 
 interface Emits {
   (e: 'update:fontSize', value: number): void
   (e: 'update:fontWeight', value: number): void
+  (e: 'update:fontColor', value: string): void
 }
 
 defineProps<Props>()
@@ -57,5 +76,10 @@ function handleSizeChange(event: Event): void {
 function handleWeightChange(event: Event): void {
   const target = event.target as HTMLInputElement
   emit('update:fontWeight', Number(target.value))
+}
+
+function handleColorChange(event: Event): void {
+  const target = event.target as HTMLInputElement
+  emit('update:fontColor', target.value)
 }
 </script>

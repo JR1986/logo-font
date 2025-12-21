@@ -16,6 +16,7 @@ export function useGoogleFonts() {
   const selectedFont = ref<string>(DEFAULT_FONT)
   const fontSize = ref<number>(DEFAULT_FONT_SIZE)
   const fontWeight = ref<number>(DEFAULT_FONT_WEIGHT)
+  const fontColor = ref<string>('#1e293b')
 
   const fontCategories = FONT_CATEGORIES
   const allFonts = getAllFonts()
@@ -58,7 +59,7 @@ export function useGoogleFonts() {
       randomIndex = Math.floor(Math.random() * allFonts.length)
     }
     
-    selectedFont.value = allFonts[randomIndex]
+    selectedFont.value = allFonts[randomIndex]!
     loadFont()
   }
 
@@ -66,6 +67,7 @@ export function useGoogleFonts() {
     selectedFont,
     fontSize,
     fontWeight,
+    fontColor,
     fontCategories,
     allFonts,
     selectedFontCategory,
