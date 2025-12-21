@@ -72,3 +72,10 @@ npm run preview
 3. Follow clean code principles e.g. split up files in to multiple components, composables, utils etc.
 4. Load Google Fonts dynamically with all weights (100-900)
 5. Maintain the categorized font structure when adding new fonts
+
+### Unit tests
+
+1. Write unit test with vitest and Vue Test Utils.
+2. For components, start unit tests always with beforeEach to give the test initial settings.
+3. if Pinia is used, set initial state inside the beforeEach via the createTestingPina plugin.
+4. Follow unit test best practices
