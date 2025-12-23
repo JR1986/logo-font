@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import type { FontCategory } from '~/types'
+import type { FontCategories, FontCategory } from '~/types'
 import { 
   FONT_CATEGORIES, 
   getAllFonts, 
@@ -20,6 +20,21 @@ export function useGoogleFonts() {
 
   const fontCategories = FONT_CATEGORIES
   const allFonts = getAllFonts()
+
+  // Initialize with all categories selected by default
+  const selectedCategories = ref<FontCategory[]>(Object.keys(FONT_CATEGORIES) as FontCategory[])
+
+  const filteredFontCategories = computed<Partial<FontCategories>>(() => {
+    const filtered: Partial<FontCategories> = {}
+    
+    selectedCategories.value.forEach(category => {
+      if (fontCategories[category]) {
+        filtered[category] = fontCategories[category]
+      }
+    })
+    
+    return filtered
+  })
 
   const selectedFontCategory = computed<FontCategory | null>(() => {
     return getFontCategory(selectedFont.value)
@@ -51,15 +66,24 @@ export function useGoogleFonts() {
    * Select a random font (different from current)
    */
   function selectRandomFont(): void {
-    const currentIndex = allFonts.indexOf(selectedFont.value)
+    // Get flat list of currently available fonts based on filters
+    const availableFonts = Object.values(filteredFontCategories.value).flat()
+    
+    if (availableFonts.length === 0) return
+
+    const currentIndex = availableFonts.indexOf(selectedFont.value)
     let randomIndex = currentIndex
     
-    // Ensure we get a different font
-    while (randomIndex === currentIndex) {
-      randomIndex = Math.floor(Math.random() * allFonts.length)
+    // Ensure we get a different font (unless it's the only one)
+    if (availableFonts.length > 1) {
+      while (randomIndex === currentIndex || randomIndex === -1) {
+        randomIndex = Math.floor(Math.random() * availableFonts.length)
+      }
+    } else {
+        randomIndex = 0
     }
     
-    selectedFont.value = allFonts[randomIndex]!
+    selectedFont.value = availableFonts[randomIndex]!
     loadFont()
   }
 
@@ -70,6 +94,8 @@ export function useGoogleFonts() {
     fontColor,
     fontCategories,
     allFonts,
+    selectedCategories,
+    filteredFontCategories,
     selectedFontCategory,
     loadFont,
     selectRandomFont

@@ -76,6 +76,7 @@ npm run preview
 ### Unit tests
 
 1. Write unit test with vitest and Vue Test Utils.
-2. For components, start unit tests always with beforeEach to give the test initial settings.
+2. For components, start unit tests always with beforeEach with inside a mount or shallowMount to give the test initial settings. Update after is per test case the settings. Try to mount once in the beforeEach. If not possible then do it twice or more if it makes the test better to work with.
 3. if Pinia is used, set initial state inside the beforeEach via the createTestingPina plugin.
 4. Follow unit test best practices
+5. Place unit test files in the same file as the source code.

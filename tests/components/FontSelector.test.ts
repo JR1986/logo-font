@@ -13,7 +13,9 @@ describe('FontSelector', () => {
     wrapper = mount(FontSelector, {
       props: {
         modelValue: 'Roboto',
-        fontCategories: mockCategories
+        fontCategories: mockCategories,
+        selectedCategories: ['Sans Serif', 'Serif'],
+        allCategories: ['Sans Serif', 'Serif']
       }
     })
   })
@@ -32,5 +34,18 @@ describe('FontSelector', () => {
     await select.setValue('Merriweather')
     
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['Merriweather'])
+  })
+
+  it('renders category checkboxes and emits update:selectedCategories', async () => {
+    const checkboxes = wrapper.findAll('input[type="checkbox"]')
+    expect(checkboxes.length).toBe(2)
+    
+    // Uncheck first category
+    await checkboxes[0].setValue(false)
+    
+    const emitted = wrapper.emitted('update:selectedCategories')
+    expect(emitted).toBeTruthy()
+    // First arg of first call should be array without 'Sans Serif'
+    expect(emitted[0][0]).toEqual(['Serif'])
   })
 })

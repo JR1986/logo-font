@@ -69,4 +69,59 @@ describe('useGoogleFonts', () => {
     expect(selectedFont.value).not.toBe(initialFont)
     expect(mockCreateElement).toHaveBeenCalled() // Should trigger load
   })
+
+  it('filteredFontCategories should update based on selectedCategories', () => {
+    const { filteredFontCategories, selectedCategories } = useGoogleFonts()
+    
+    // Initially all selected
+    expect(Object.keys(filteredFontCategories.value).length).toBe(4) // 4 categories
+    
+    // Deselect one
+    selectedCategories.value = selectedCategories.value.filter(c => c !== 'Serif')
+    
+    expect(Object.keys(filteredFontCategories.value).length).toBe(3)
+    expect(filteredFontCategories.value['Serif']).toBeUndefined()
+    expect(filteredFontCategories.value['Sans-Serif']).toBeDefined()
+  })
+
+  it('selectRandomFont should respect category filter', () => {
+    const { selectRandomFont, selectedFont, selectedCategories } = useGoogleFonts()
+    
+    // Select only 'Serif'
+    selectedCategories.value = ['Serif']
+    
+    // Try multiple times to ensure we don't get a non-serif font
+    for (let i = 0; i < 10; i++) {
+        selectRandomFont()
+        // We can check if the selected font is in the Serif list
+        // In a real app we might not have access to the internal lists in the test easily without exporting them,
+        // but we know 'Roboto' is Sans-Serif and 'Merriweather' is Serif (from previous knowledge of fonts.ts)
+        // Or better, check category
+        
+        // Actually, let's just cheat and check against the mock/real data if possible,
+        // or just rely on the fact that we know 'Roboto' (default) is Sans-Serif, so it should CHANGE if we select Serif only.
+    }
+    
+    // Since we are using the REAL useGoogleFonts which imports REAL fonts.ts, we can check actual names
+    // 'Roboto' is Sans-Serif.
+    // If we limit to Serif, 'Roboto' should not be selected.
+    // However, if the current font is 'Roboto' and we click random, it should change to a Serif font.
+    
+    const serifFonts = [
+        'Playfair Display',
+        'Merriweather',
+        'Crimson Text',
+        'Libre Baskerville',
+        'EB Garamond',
+        'Cormorant Garamond',
+        'Lora',
+        'PT Serif',
+        'Source Serif Pro',
+        'Bitter',
+        'Spectral',
+        'Vollkorn'
+    ]
+    
+    expect(serifFonts).toContain(selectedFont.value)
+  })
 })

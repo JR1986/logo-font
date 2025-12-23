@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4">
+  <div class="min-h-screen from-slate-50 to-slate-100 py-12 px-4">
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-12">
@@ -31,7 +31,9 @@
           <!-- Font Selector -->
           <FontSelector 
             v-model="selectedFont" 
-            :font-categories="fontCategories"
+            :font-categories="filteredFontCategories"
+            v-model:selected-categories="selectedCategories"
+            :all-categories="Object.keys(fontCategories) as any"
             @update:model-value="loadFont"
           />
         </div>
@@ -76,6 +78,8 @@ const {
   fontWeight,
   fontColor,
   fontCategories,
+  filteredFontCategories,
+  selectedCategories,
   selectedFontCategory,
   loadFont,
   selectRandomFont
