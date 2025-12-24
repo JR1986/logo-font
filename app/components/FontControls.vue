@@ -1,5 +1,5 @@
 <template>
-  <div class="grid md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
+  <div class="space-y-6">
     <!-- Font Size Slider -->
     <div>
       <label for="font-size" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Save Match Button -->
-    <div class="flex items-end">
+    <div class="pt-2">
       <button 
         @click="$emit('save')"
         class="w-full h-10 flex items-center justify-center gap-2 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg transition-colors font-medium shadow-sm hover:shadow active:scale-95 duration-100"
