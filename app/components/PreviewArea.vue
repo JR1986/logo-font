@@ -46,6 +46,7 @@ interface Props {
   font: string
   fontSize: number
   fontWeight: number
+  letterSpacing: number
   fontColor: string
   fontCategory: string | null
 }
@@ -56,6 +57,7 @@ const fontStyle = computed<CSSProperties>(() => ({
   fontFamily: props.font,
   fontSize: `${props.fontSize}px`,
   fontWeight: props.fontWeight,
+  letterSpacing: `${props.letterSpacing}px`,
   color: props.fontColor
 }))
 </script>

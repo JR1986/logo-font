@@ -16,6 +16,7 @@ export function useGoogleFonts() {
   const selectedFont = ref<string>(DEFAULT_FONT)
   const fontSize = ref<number>(DEFAULT_FONT_SIZE)
   const fontWeight = ref<number>(DEFAULT_FONT_WEIGHT)
+  const letterSpacing = ref<number>(0)
   const fontColor = ref<string>('#1e293b')
 
   const fontCategories = FONT_CATEGORIES
@@ -91,6 +92,7 @@ export function useGoogleFonts() {
     selectedFont,
     fontSize,
     fontWeight,
+    letterSpacing,
     fontColor,
     fontCategories,
     allFonts,

@@ -33,6 +33,23 @@
       />
     </div>
 
+    <!-- Letter Spacing Slider -->
+    <div>
+      <label for="letter-spacing" class="block text-sm font-semibold text-slate-700 mb-2">
+        Letter Spacing: {{ letterSpacing }}px
+      </label>
+      <input
+        id="letter-spacing"
+        :value="letterSpacing"
+        @input="handleSpacingChange"
+        type="range"
+        min="-5"
+        max="20"
+        step="1"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+      />
+    </div>
+
     <!-- Font Color Picker -->
     <div>
       <label for="font-color" class="block text-sm font-semibold text-slate-700 mb-2">
@@ -70,12 +87,14 @@
 interface Props {
   fontSize: number
   fontWeight: number
+  letterSpacing: number
   fontColor: string
 }
 
 interface Emits {
   (e: 'update:fontSize', value: number): void
   (e: 'update:fontWeight', value: number): void
+  (e: 'update:letterSpacing', value: number): void
   (e: 'update:fontColor', value: string): void
   (e: 'save'): void
 }
@@ -91,6 +110,11 @@ function handleSizeChange(event: Event): void {
 function handleWeightChange(event: Event): void {
   const target = event.target as HTMLInputElement
   emit('update:fontWeight', Number(target.value))
+}
+
+function handleSpacingChange(event: Event): void {
+  const target = event.target as HTMLInputElement
+  emit('update:letterSpacing', Number(target.value))
 }
 
 function handleColorChange(event: Event): void {

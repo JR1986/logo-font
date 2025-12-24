@@ -39,6 +39,7 @@
           :font="match.font"
           :font-size="match.fontSize"
           :font-weight="match.fontWeight"
+          :letter-spacing="match.letterSpacing || 0"
           :font-color="match.fontColor"
           :font-category="match.fontCategory"
         />

@@ -7,6 +7,7 @@ export interface SavedMatch {
   text: string
   fontSize: number
   fontWeight: number
+  letterSpacing: number
   logo: string | null
   fontColor: string
   fontCategory: FontCategory | null
