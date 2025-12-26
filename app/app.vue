@@ -9,11 +9,14 @@
     />
 
     <!-- Main Content Area -->
-    <SplitLayout v-if="currentView === 'editor'">
+    <SplitLayout 
+      v-if="currentView === 'editor'"
+      :is-menu-open="isMobileMenuOpen"
+      @close-menu="isMobileMenuOpen = false"
+    >
       <template #sidebar>
         <!-- Upload Logo -->
         <div class="space-y-3">
-          <h3 class="text-sm font-semibold text-slate-700">Upload Logo</h3>
           <LogoUpload v-model="uploadedLogo" />
         </div>
 
@@ -71,12 +74,21 @@
     </SplitLayout>
 
     <!-- Saved Matches View (Full Screen Replacement for now) -->
-    <div v-else class="flex-1 overflow-y-auto p-8">
+    <div v-else class="flex-1 overflow-y-auto p-8 pb-24 md:pb-8">
       <div class="max-w-6xl mx-auto">
          <!-- Passed @back handler is handled by header button now, but keeping prop for compatibility if needed inside -->
         <SavedMatches @back="currentView = 'editor'" />
       </div>
     </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <BottomNav 
+      :current-view="currentView"
+      :is-menu-open="isMobileMenuOpen"
+      :matches-count="matches.length"
+      @nav="handleNav"
+      @toggle-menu="handleToggleMenu"
+    />
   </div>
 </template>
 
@@ -91,6 +103,7 @@ import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
 const previewText = ref('Company Name')
 const uploadedLogo = ref<string | null>(null)
 const currentView = ref<'editor' | 'matches'>('editor')
+const isMobileMenuOpen = ref(false)
 
 // Composables
 const {
@@ -124,6 +137,25 @@ function handleSaveMatch() {
     fontColor: fontColor.value,
     fontCategory: selectedFontCategory.value
   })
+}
+
+function handleNav(view: 'editor' | 'matches') {
+  currentView.value = view
+  if (view === 'matches') {
+    isMobileMenuOpen.value = false
+  }
+}
+
+function handleToggleMenu() {
+  if (currentView.value === 'matches') {
+    currentView.value = 'editor'
+    // Small delay to allow component to mount before opening menu, 
+    // though in Vue 3 reactivity usually handles this, a nextTick might be needed if strict.
+    // simpler: just set it true.
+    isMobileMenuOpen.value = true
+  } else {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value
+  }
 }
 
 // Keyboard shortcuts
