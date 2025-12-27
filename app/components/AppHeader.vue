@@ -1,7 +1,7 @@
 <template>
   <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-10 dark:bg-slate-900 dark:border-slate-800">
     <div class="flex items-center gap-3">
-      <img src="/logofont.svg" alt="Logo Font" width="32" class="h-8 w-auto" />
+      <AppLogo class="h-8 w-auto" />
     </div>
     
     <div class="flex items-center gap-3">

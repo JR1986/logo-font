@@ -22,7 +22,7 @@
 
         <!-- Preview Text -->
         <div class="space-y-3">
-            <label for="preview-text" class="block text-sm font-semibold text-slate-700">
+            <label for="preview-text" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Preview Text
             </label>
             <input
@@ -30,7 +30,7 @@
               v-model="previewText"
               type="text"
               placeholder="Enter your text here..."
-              class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm"
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-blue-900 dark:placeholder-slate-500"
             />
         </div>
 
