@@ -73,15 +73,33 @@ describe('useGoogleFonts', () => {
   it('filteredFontCategories should update based on selectedCategories', () => {
     const { filteredFontCategories, selectedCategories } = useGoogleFonts()
     
-    // Initially all selected
-    expect(Object.keys(filteredFontCategories.value).length).toBe(4) // 4 categories
+    // Initially all selected (now 5 including System)
+    expect(Object.keys(filteredFontCategories.value).length).toBe(5) 
     
     // Deselect one
     selectedCategories.value = selectedCategories.value.filter(c => c !== 'Serif')
     
-    expect(Object.keys(filteredFontCategories.value).length).toBe(3)
+    expect(Object.keys(filteredFontCategories.value).length).toBe(4)
     expect(filteredFontCategories.value['Serif']).toBeUndefined()
     expect(filteredFontCategories.value['Sans-Serif']).toBeDefined()
+    expect(filteredFontCategories.value['System']).toBeDefined()
+  })
+
+  it('loadInstalledFonts should update fontCategories', async () => {
+    const { loadInstalledFonts, fontCategories } = useGoogleFonts()
+    
+    // Mock window.queryLocalFonts
+    // @ts-ignore
+    window.queryLocalFonts = vi.fn().mockResolvedValue([
+      { family: 'Local Font 1' },
+      { family: 'Local Font 2' }
+    ])
+    
+    const success = await loadInstalledFonts()
+    
+    expect(success).toBe(true)
+    expect(fontCategories.value['System']).toContain('Local Font 1')
+    expect(fontCategories.value['System']).toContain('Local Font 2')
   })
 
   it('selectRandomFont should respect category filter', () => {

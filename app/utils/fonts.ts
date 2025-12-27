@@ -1,9 +1,29 @@
 import type { FontCategories, FontCategory } from '~/types'
 
 /**
+ * Standard System Fonts
+ */
+export const SYSTEM_FONTS = [
+  'Arial',
+  'Helvetica',
+  'Times New Roman',
+  'Courier New',
+  'Verdana',
+  'Georgia',
+  'Palatino',
+  'Garamond',
+  'Bookman',
+  'Comic Sans MS',
+  'Trebuchet MS',
+  'Arial Black',
+  'Impact'
+]
+
+/**
  * Font categories with all available Google Fonts
  */
 export const FONT_CATEGORIES: FontCategories = {
+  'System': SYSTEM_FONTS,
   'Sans-Serif': [
     'Roboto',
     'Open Sans',

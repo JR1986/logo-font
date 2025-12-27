@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import type { FontCategories, FontCategory } from '~/types'
 
 interface Props {
@@ -56,6 +57,7 @@ interface Props {
   fontCategories: Partial<FontCategories>
   selectedCategories: FontCategory[]
   allCategories: FontCategory[]
+  loadInstalled: (() => Promise<boolean>) | undefined
 }
 
 interface Emits {
@@ -82,5 +84,23 @@ function toggleCategory(category: FontCategory): void {
   }
   
   emit('update:selectedCategories', newCategories)
+}
+
+const supportsLocalFonts = ref(false)
+
+onMounted(() => {
+  supportsLocalFonts.value = 'queryLocalFonts' in window
+})
+
+async function handleLoadLocalFonts() {
+  if (props.loadInstalled) {
+    const success = await props.loadInstalled()
+    if (success) {
+      // Ensure 'System' is selected so the user sees the new fonts immediately
+      if (!props.selectedCategories.includes('System')) {
+        toggleCategory('System')
+      }
+    }
+  }
 }
 </script>

@@ -6,8 +6,17 @@ import {
   getFontCategory,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
-  DEFAULT_FONT_WEIGHT
+  DEFAULT_FONT_WEIGHT,
+  SYSTEM_FONTS
 } from '~/utils/fonts'
+
+// Type definition for the Local Font Access API
+interface LocalFontData {
+  family: string
+  fullName: string
+  postscriptName: string
+  style: string
+}
 
 /**
  * Composable for managing Google Fonts
@@ -19,8 +28,13 @@ export function useGoogleFonts() {
   const letterSpacing = ref<number>(0)
   const fontColor = ref<string>('#1e293b')
 
-  const fontCategories = FONT_CATEGORIES
-  const allFonts = getAllFonts()
+  const installedFonts = ref<string[]>([])
+  const fontCategories = ref<FontCategories>({ ...FONT_CATEGORIES })
+  
+  // Keep track of dynamically added fonts (installed ones)
+  const allFonts = computed(() => {
+    return Object.values(fontCategories.value).flat()
+  })
 
   // Initialize with all categories selected by default
   const selectedCategories = ref<FontCategory[]>(Object.keys(FONT_CATEGORIES) as FontCategory[])
@@ -29,8 +43,8 @@ export function useGoogleFonts() {
     const filtered: Partial<FontCategories> = {}
     
     selectedCategories.value.forEach(category => {
-      if (fontCategories[category]) {
-        filtered[category] = fontCategories[category]
+      if (fontCategories.value[category]) {
+        filtered[category] = fontCategories.value[category]
       }
     })
     
@@ -46,6 +60,12 @@ export function useGoogleFonts() {
    */
   function loadFont(fontName?: string): void {
     const font = fontName ?? selectedFont.value
+    
+    // Skip loading for system fonts or user-installed fonts
+    if (SYSTEM_FONTS.includes(font) || installedFonts.value.includes(font)) {
+      return
+    }
+
     const encodedFontName = font.replace(/ /g, '+')
     const linkId = 'google-font-link'
     
@@ -61,6 +81,44 @@ export function useGoogleFonts() {
     link.rel = 'stylesheet'
     link.href = `https://fonts.googleapis.com/css2?family=${encodedFontName}:wght@100;200;300;400;500;600;700;800;900&display=swap`
     document.head.appendChild(link)
+  }
+
+  /**
+   * Load local fonts via Local Font Access API
+   */
+  async function loadInstalledFonts(): Promise<boolean> {
+    if (!('queryLocalFonts' in window)) {
+      console.warn('Local Font Access API not supported')
+      return false
+    }
+
+    try {
+      // @ts-expect-error - Experimental API
+      const localFonts: LocalFontData[] = await window.queryLocalFonts()
+      
+      // Extract unique font families
+      const families = new Set<string>()
+      localFonts.forEach(font => families.add(font.family))
+      
+      installedFonts.value = Array.from(families).sort()
+      
+      // Add standard system fonts to the installed list so they are all grouped together in "System"
+      // or append nicely
+      
+      // Update the categories to include installed fonts in 'System'
+      // We merge typical system fonts + user installed fonts
+      const combinedSystemFonts = Array.from(new Set([...SYSTEM_FONTS, ...installedFonts.value])).sort()
+      
+      fontCategories.value = {
+        ...fontCategories.value,
+        'System': combinedSystemFonts
+      }
+      
+      return true
+    } catch (e) {
+      console.error('Permission denied or error querying local fonts', e)
+      return false
+    }
   }
 
   /**
@@ -100,6 +158,8 @@ export function useGoogleFonts() {
     filteredFontCategories,
     selectedFontCategory,
     loadFont,
-    selectRandomFont
+    selectRandomFont,
+    loadInstalledFonts,
+    installedFonts
   }
 }

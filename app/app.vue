@@ -121,7 +121,8 @@ const {
   selectedCategories,
   selectedFontCategory,
   loadFont,
-  selectRandomFont
+  selectRandomFont,
+  loadInstalledFonts
 } = useGoogleFonts()
 
 const {

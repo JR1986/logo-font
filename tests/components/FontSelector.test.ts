@@ -15,7 +15,8 @@ describe('FontSelector', () => {
         modelValue: 'Roboto',
         fontCategories: mockCategories,
         selectedCategories: ['Sans Serif', 'Serif'],
-        allCategories: ['Sans Serif', 'Serif']
+        allCategories: ['Sans Serif', 'Serif'],
+        loadInstalled: async () => true
       }
     })
   })
