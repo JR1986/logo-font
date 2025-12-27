@@ -53,6 +53,7 @@
               v-model:font-weight="fontWeight"
               v-model:letter-spacing="letterSpacing"
               v-model:font-color="fontColor"
+              v-model:preview-bg="previewBg"
             />
           </div>
       </template>
@@ -68,6 +69,7 @@
           :font-color="fontColor"
           :font-category="selectedFontCategory"
           :is-saved="isCurrentSaved"
+          :preview-bg="previewBg"
           class="!p-16 !shadow-2xl relative" 
           @toggle-save="handleToggleSave"
         />
@@ -94,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useGoogleFonts } from '~/composables/useGoogleFonts'
 import { useMatches } from '~/composables/useMatches'
 import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
@@ -103,6 +105,7 @@ import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
 // State
 const previewText = ref('Company Name')
 const uploadedLogo = ref<string | null>(null)
+const previewBg = ref<'white' | 'black'>('white')
 const currentView = ref<'editor' | 'matches'>('editor')
 const isMobileMenuOpen = ref(false)
 
@@ -137,10 +140,20 @@ const currentMatchConfig = computed(() => ({
   letterSpacing: letterSpacing.value,
   logo: uploadedLogo.value,
   fontColor: fontColor.value,
-  fontCategory: selectedFontCategory.value
+  fontCategory: selectedFontCategory.value,
+  previewBg: previewBg.value
 }))
 
 const isCurrentSaved = computed(() => isMatchSaved(currentMatchConfig.value))
+
+// Watchers
+watch(previewBg, (newBg) => {
+  if (newBg === 'black') {
+    fontColor.value = '#ffffff'
+  } else {
+    fontColor.value = '#000000'
+  }
+})
 
 // Actions
 function handleToggleSave() {

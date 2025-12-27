@@ -10,7 +10,9 @@ describe('FontControls', () => {
       props: {
         fontSize: 24,
         fontWeight: 500,
-        fontColor: '#000000'
+        letterSpacing: 0,
+        fontColor: '#000000',
+        previewBg: 'white'
       }
     })
   })
@@ -37,5 +39,18 @@ describe('FontControls', () => {
     const colorInput = wrapper.find('input[type="color"]')
     await colorInput.setValue('#ff0000')
     expect(wrapper.emitted('update:fontColor')?.[0]).toEqual(['#ff0000'])
+  })
+
+  it('emits update:previewBg when toggle buttons are clicked', async () => {
+    // Find Light and Dark buttons
+    const buttons = wrapper.findAll('button')
+    const lightBtn = buttons.find((b: any) => b.text() === 'Light')
+    const darkBtn = buttons.find((b: any) => b.text() === 'Dark')
+
+    await darkBtn.trigger('click')
+    expect(wrapper.emitted('update:previewBg')?.[0]).toEqual(['black'])
+
+    await lightBtn.trigger('click')
+    expect(wrapper.emitted('update:previewBg')?.[1]).toEqual(['white'])
   })
 })

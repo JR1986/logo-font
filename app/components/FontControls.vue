@@ -67,6 +67,31 @@
       </div>
     </div>
 
+    <!-- Preview Background Toggle -->
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-2">
+        Preview Background
+      </label>
+      <div class="flex p-1 bg-slate-200 rounded-lg">
+        <button
+          type="button"
+          class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200"
+          :class="previewBg === 'white' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          @click="$emit('update:previewBg', 'white')"
+        >
+          Light
+        </button>
+        <button
+          type="button"
+          class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200"
+          :class="previewBg === 'black' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          @click="$emit('update:previewBg', 'black')"
+        >
+          Dark
+        </button>
+      </div>
+    </div>
+
 
   </div>
 </template>
@@ -77,6 +102,7 @@ interface Props {
   fontWeight: number
   letterSpacing: number
   fontColor: string
+  previewBg: 'white' | 'black'
 }
 
 interface Emits {
@@ -84,6 +110,7 @@ interface Emits {
   (e: 'update:fontWeight', value: number): void
   (e: 'update:letterSpacing', value: number): void
   (e: 'update:fontColor', value: string): void
+  (e: 'update:previewBg', value: 'white' | 'black'): void
 }
 
 defineProps<Props>()

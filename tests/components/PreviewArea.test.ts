@@ -11,7 +11,8 @@ describe('PreviewArea', () => {
     fontSize: 24,
     fontWeight: 400,
     fontColor: '#000000',
-    fontCategory: 'Sans Serif'
+    fontCategory: 'Sans Serif',
+    letterSpacing: 0
   }
 
   beforeEach(() => {
@@ -21,7 +22,7 @@ describe('PreviewArea', () => {
   })
 
   it('renders text with correct styles', () => {
-    const textElement = wrapper.find('.transition-all')
+    const textElement = wrapper.find('[data-testid="preview-text"]')
     expect(textElement.text()).toBe('Company Name')
     
     const style = textElement.attributes('style')
@@ -42,5 +43,16 @@ describe('PreviewArea', () => {
   it('renders font info', () => {
     expect(wrapper.text()).toContain('Font: Roboto')
     expect(wrapper.text()).toContain('(Sans Serif)')
+  })
+
+  it('applies correct background classes based on prop', async () => {
+    // Default (white)
+    expect(wrapper.find('.bg-white').exists()).toBe(true)
+    expect(wrapper.find('.bg-slate-900').exists()).toBe(false)
+
+    // Dark mode
+    await wrapper.setProps({ previewBg: 'black' })
+    expect(wrapper.find('.bg-slate-900').exists()).toBe(true)
+    expect(wrapper.find('.bg-white').exists()).toBe(false)
   })
 })

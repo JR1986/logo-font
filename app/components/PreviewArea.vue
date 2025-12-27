@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-xl p-12">
+  <div 
+    class="rounded-2xl shadow-xl p-12 transition-colors duration-300"
+    :class="previewBg === 'white' ? 'bg-white' : 'bg-slate-900 border border-slate-800'"
+  >
     <p class="text-sm font-semibold text-slate-500 mb-8 uppercase tracking-wide text-center">
       Live Preview
     </p>
@@ -26,7 +29,10 @@
     </button>
 
     <!-- Inline Logo Mark Preview -->
-    <div class="flex items-center justify-center gap-4 p-8 bg-slate-50 rounded-xl min-h-48">
+    <div 
+      class="flex items-center justify-center gap-4 p-8 rounded-xl min-h-48 transition-colors duration-300"
+      :class="previewBg === 'white' ? 'bg-slate-50' : 'bg-slate-800'"
+    >
       <!-- Logo -->
       <img 
         v-if="logo" 
@@ -45,14 +51,15 @@
       <div
         :style="fontStyle"
         class="transition-all duration-300"
+        data-testid="preview-text"
       >
         {{ text }}
       </div>
     </div>
     
-    <p class="text-sm text-slate-400 mt-8 text-center">
-      Font: <span class="font-semibold">{{ font }}</span> 
-      <span class="text-slate-300">({{ fontCategory }})</span>
+    <p class="text-sm mt-8 text-center transition-colors duration-300" :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'">
+      Font: <span class="font-semibold" :class="previewBg === 'white' ? 'text-slate-500' : 'text-slate-400'">{{ font }}</span> 
+      <span :class="previewBg === 'white' ? 'text-slate-300' : 'text-slate-600'">({{ fontCategory }})</span>
     </p>
   </div>
 </template>
@@ -71,9 +78,13 @@ interface Props {
   fontColor: string
   fontCategory: string | null
   isSaved?: boolean
+  previewBg?: 'white' | 'black'
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  previewBg: 'white'
+})
+
 defineEmits<{
   (e: 'toggle-save'): void
 }>()
