@@ -2,7 +2,7 @@
   <div class="space-y-6">
     <!-- Font Size Slider -->
     <div>
-      <label for="font-size" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="font-size" class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
         Font Size: {{ fontSize }}px
       </label>
       <input
@@ -12,13 +12,13 @@
         type="range"
         min="16"
         max="120"
-        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:bg-slate-700"
       />
     </div>
 
     <!-- Font Weight Slider -->
     <div>
-      <label for="font-weight" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="font-weight" class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
         Font Weight: {{ fontWeight }}
       </label>
       <input
@@ -29,13 +29,13 @@
         min="100"
         max="900"
         step="100"
-        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:bg-slate-700"
       />
     </div>
 
     <!-- Letter Spacing Slider -->
     <div>
-      <label for="letter-spacing" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="letter-spacing" class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
         Letter Spacing: {{ letterSpacing }}px
       </label>
       <input
@@ -46,13 +46,13 @@
         min="-5"
         max="20"
         step="1"
-        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+        class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-500 dark:bg-slate-700"
       />
     </div>
 
     <!-- Font Color Picker -->
     <div>
-      <label for="font-color" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="font-color" class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
         Font Color
       </label>
       <div class="flex items-center gap-3">
@@ -61,22 +61,22 @@
           :value="fontColor"
           @input="handleColorChange"
           type="color"
-          class="h-10 w-20 p-1 bg-white border border-slate-200 rounded cursor-pointer"
+          class="h-10 w-20 p-1 bg-white border border-slate-200 rounded cursor-pointer dark:bg-slate-800 dark:border-slate-700"
         />
-        <span class="text-sm font-mono text-slate-500">{{ fontColor }}</span>
+        <span class="text-sm font-mono text-slate-500 dark:text-slate-400">{{ fontColor }}</span>
       </div>
     </div>
 
     <!-- Preview Background Toggle -->
     <div>
-      <label class="block text-sm font-semibold text-slate-700 mb-2">
+      <label class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
         Preview Background
       </label>
-      <div class="flex p-1 bg-slate-200 rounded-lg">
+      <div class="flex p-1 bg-slate-200 rounded-lg dark:bg-slate-700">
         <button
           type="button"
           class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200"
-          :class="previewBg === 'white' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          :class="previewBg === 'white' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
           @click="$emit('update:previewBg', 'white')"
         >
           Light
@@ -84,7 +84,7 @@
         <button
           type="button"
           class="flex-1 py-1.5 text-sm font-medium rounded-md transition-all duration-200"
-          :class="previewBg === 'black' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+          :class="previewBg === 'black' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
           @click="$emit('update:previewBg', 'black')"
         >
           Dark

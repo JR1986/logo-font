@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex flex-col bg-slate-50">
+  <div class="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
     <!-- Header (Persistent) -->
     <!-- Header (Persistent) -->
     <AppHeader 
@@ -147,6 +147,16 @@ const currentMatchConfig = computed(() => ({
 const isCurrentSaved = computed(() => isMatchSaved(currentMatchConfig.value))
 
 // Watchers
+const colorMode = useColorMode()
+
+watch(() => colorMode.value, (newMode) => {
+  if (newMode === 'dark') {
+    previewBg.value = 'black'
+  } else {
+    previewBg.value = 'white'
+  }
+})
+
 watch(previewBg, (newBg) => {
   if (newBg === 'black') {
     fontColor.value = '#ffffff'

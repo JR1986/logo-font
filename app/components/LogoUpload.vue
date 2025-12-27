@@ -1,15 +1,15 @@
 <template>
   <div>
-    <label class="block text-sm font-semibold text-slate-700 mb-2">
+    <label class="block text-sm font-semibold text-slate-700 mb-2 dark:text-slate-300">
       Upload Logo
     </label>
     <div 
-      class="relative w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer flex items-center justify-center"
+      class="relative w-full h-32 border-2 border-dashed border-slate-300 rounded-lg hover:border-blue-400 transition-colors cursor-pointer flex items-center justify-center dark:border-slate-700 dark:hover:border-blue-500"
       @click="triggerFileInput"
       @dragover.prevent="setDragging(true)"
       @dragleave="setDragging(false)"
       @drop.prevent="handleDrop"
-      :class="{ 'border-blue-500 bg-blue-50': isDragging }"
+      :class="{ 'border-blue-500 bg-blue-50 dark:bg-blue-900/20': isDragging }"
     >
       <input
         ref="fileInput"
@@ -29,7 +29,7 @@
     <button 
       v-if="modelValue" 
       @click="clearLogo"
-      class="mt-2 text-sm text-red-500 hover:text-red-700 transition-colors"
+      class="mt-2 text-sm text-red-500 hover:text-red-700 transition-colors dark:text-red-400 dark:hover:text-red-300"
     >
       Remove logo
     </button>

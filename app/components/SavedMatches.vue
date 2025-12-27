@@ -1,18 +1,18 @@
 <template>
   <div class="space-y-8">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold text-slate-800">Saved Matches ({{ matches.length }})</h2>
+      <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Saved Matches ({{ matches.length }})</h2>
       <button 
         @click="$emit('back')"
-        class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors"
+        class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700 dark:hover:text-white"
       >
         ← Back to Editor
       </button>
     </div>
 
-    <div v-if="matches.length === 0" class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-      <p class="text-slate-500 text-lg">No saved matches yet.</p>
-      <p class="text-slate-400 mt-2">Go back to the editor to save your first match!</p>
+    <div v-if="matches.length === 0" class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200 dark:bg-slate-900 dark:border-slate-800">
+      <p class="text-slate-500 text-lg dark:text-slate-400">No saved matches yet.</p>
+      <p class="text-slate-400 mt-2 dark:text-slate-500">Go back to the editor to save your first match!</p>
     </div>
 
     <div v-else class="grid md:grid-cols-2 gap-6">
@@ -24,7 +24,7 @@
         <!-- Delete Button -->
         <button 
           @click="removeMatch(match.id)"
-          class="absolute top-4 right-4 z-10 p-2 bg-white/90 backdrop-blur shadow-sm rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100"
+          class="absolute top-4 right-4 z-10 p-2 bg-white/90 backdrop-blur shadow-sm rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 dark:bg-slate-800/90 dark:text-slate-500 dark:hover:bg-red-900/30 dark:hover:text-red-400"
           title="Remove match"
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
