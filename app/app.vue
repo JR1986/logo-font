@@ -53,7 +53,6 @@
               v-model:font-weight="fontWeight"
               v-model:letter-spacing="letterSpacing"
               v-model:font-color="fontColor"
-              @save="handleSaveMatch"
             />
           </div>
       </template>
@@ -68,7 +67,9 @@
           :letter-spacing="letterSpacing"
           :font-color="fontColor"
           :font-category="selectedFontCategory"
-          class="!p-16 !shadow-2xl"
+          :is-saved="isCurrentSaved"
+          class="!p-16 !shadow-2xl relative" 
+          @toggle-save="handleToggleSave"
         />
       </template>
     </SplitLayout>
@@ -122,21 +123,33 @@ const {
 
 const {
   matches,
-  saveMatch
+  saveMatch,
+  removeMatch,
+  findMatchId,
+  isMatchSaved
 } = useMatches()
 
+const currentMatchConfig = computed(() => ({
+  font: selectedFont.value,
+  text: previewText.value,
+  fontSize: fontSize.value,
+  fontWeight: fontWeight.value,
+  letterSpacing: letterSpacing.value,
+  logo: uploadedLogo.value,
+  fontColor: fontColor.value,
+  fontCategory: selectedFontCategory.value
+}))
+
+const isCurrentSaved = computed(() => isMatchSaved(currentMatchConfig.value))
+
 // Actions
-function handleSaveMatch() {
-  saveMatch({
-    font: selectedFont.value,
-    text: previewText.value,
-    fontSize: fontSize.value,
-    fontWeight: fontWeight.value,
-    letterSpacing: letterSpacing.value,
-    logo: uploadedLogo.value,
-    fontColor: fontColor.value,
-    fontCategory: selectedFontCategory.value
-  })
+function handleToggleSave() {
+  if (isCurrentSaved.value) {
+    const id = findMatchId(currentMatchConfig.value)
+    if (id) removeMatch(id)
+  } else {
+    saveMatch(currentMatchConfig.value)
+  }
 }
 
 function handleNav(view: 'editor' | 'matches') {

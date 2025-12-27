@@ -31,9 +31,28 @@ export function useMatches() {
     matches.value = matches.value.filter(m => m.id !== id)
   }
 
+  function findMatchId(match: Omit<SavedMatch, 'id' | 'timestamp'>): string | undefined {
+    return matches.value.find(m => 
+      m.font === match.font &&
+      m.text === match.text &&
+      m.fontSize === match.fontSize &&
+      m.fontWeight === match.fontWeight &&
+      m.letterSpacing === match.letterSpacing &&
+      m.logo === match.logo &&
+      m.fontColor === match.fontColor &&
+      m.fontCategory === match.fontCategory
+    )?.id
+  }
+
+  function isMatchSaved(match: Omit<SavedMatch, 'id' | 'timestamp'>): boolean {
+    return !!findMatchId(match)
+  }
+
   return {
     matches,
     saveMatch,
-    removeMatch
+    removeMatch,
+    findMatchId,
+    isMatchSaved
   }
 }
