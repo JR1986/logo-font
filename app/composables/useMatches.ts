@@ -11,6 +11,7 @@ export interface SavedMatch {
   logo: string | null
   fontColor: string
   fontCategory: FontCategory | null
+  previewBg: 'white' | 'black'
   timestamp: number
 }
 
@@ -40,7 +41,8 @@ export function useMatches() {
       m.letterSpacing === match.letterSpacing &&
       m.logo === match.logo &&
       m.fontColor === match.fontColor &&
-      m.fontCategory === match.fontCategory
+      m.fontCategory === match.fontCategory &&
+      m.previewBg === match.previewBg
     )?.id
   }
 

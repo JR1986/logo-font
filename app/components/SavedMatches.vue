@@ -42,7 +42,7 @@
           :letter-spacing="match.letterSpacing || 0"
           :font-color="match.fontColor"
           :font-category="match.fontCategory"
-          :preview-bg="isDark ? 'black' : 'white'"
+          :preview-bg="match.previewBg"
         />
       </div>
     </div>
@@ -50,13 +50,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useMatches } from '~/composables/useMatches'
 
 defineEmits(['back'])
 
 const { matches, removeMatch } = useMatches()
-const colorMode = useColorMode()
-
-const isDark = computed(() => colorMode.value === 'dark')
 </script>
