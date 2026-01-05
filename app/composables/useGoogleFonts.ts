@@ -102,16 +102,12 @@ export function useGoogleFonts() {
       
       installedFonts.value = Array.from(families).sort()
       
-      // Add standard system fonts to the installed list so they are all grouped together in "System"
-      // or append nicely
-      
-      // Update the categories to include installed fonts in 'System'
-      // We merge typical system fonts + user installed fonts
-      const combinedSystemFonts = Array.from(new Set([...SYSTEM_FONTS, ...installedFonts.value])).sort()
+      // Update the categories to include installed fonts in 'Installed'
+      // We keep System fonts separate
       
       fontCategories.value = {
         ...fontCategories.value,
-        'System': combinedSystemFonts
+        'Installed': installedFonts.value
       }
       
       return true

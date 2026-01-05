@@ -28,6 +28,8 @@ vi.mock('~/composables/useMatches', async () => {
   }
 })
 
+
+
 // Stub PreviewArea since it might have its own dependencies
 const PreviewAreaStub = {
   template: '<div class="preview-area-stub"></div>',

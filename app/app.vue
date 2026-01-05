@@ -41,6 +41,7 @@
               :font-categories="filteredFontCategories"
               v-model:selected-categories="selectedCategories"
               :all-categories="Object.keys(fontCategories) as any"
+              :load-installed="loadInstalledFonts"
               @update:model-value="loadFont"
             />
           </div>

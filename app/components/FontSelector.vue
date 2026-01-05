@@ -96,9 +96,9 @@ async function handleLoadLocalFonts() {
   if (props.loadInstalled) {
     const success = await props.loadInstalled()
     if (success) {
-      // Ensure 'System' is selected so the user sees the new fonts immediately
-      if (!props.selectedCategories.includes('System')) {
-        toggleCategory('System')
+      // Ensure 'Installed' is selected so the user sees the new fonts immediately
+      if (!props.selectedCategories.includes('Installed')) {
+        toggleCategory('Installed')
       }
     }
   }

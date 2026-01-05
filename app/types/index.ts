@@ -1,7 +1,7 @@
 /**
  * Font category names
  */
-export type FontCategory = 'Sans-Serif' | 'Serif' | 'Display' | 'Handwriting' | 'System'
+export type FontCategory = 'Sans-Serif' | 'Serif' | 'Display' | 'Handwriting' | 'System' | 'Installed'
 
 /**
  * Font categories object structure

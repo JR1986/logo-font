@@ -60,8 +60,11 @@ describe('useGoogleFonts', () => {
   })
 
   it('selectRandomFont should update selectedFont', () => {
-    const { selectedFont, selectRandomFont } = useGoogleFonts()
+    const { selectedFont, selectRandomFont, selectedCategories } = useGoogleFonts()
     const initialFont = selectedFont.value
+    
+    // Force selection from a category that triggers a load (non-System)
+    selectedCategories.value = ['Sans-Serif']
     
     // Attempt multiple times to ensure change (randomness might pick same, although while loop prevents it)
     selectRandomFont()
@@ -73,13 +76,13 @@ describe('useGoogleFonts', () => {
   it('filteredFontCategories should update based on selectedCategories', () => {
     const { filteredFontCategories, selectedCategories } = useGoogleFonts()
     
-    // Initially all selected (now 5 including System)
-    expect(Object.keys(filteredFontCategories.value).length).toBe(5) 
+    // Initially all selected (now 6 including System and Installed)
+    expect(Object.keys(filteredFontCategories.value).length).toBe(6) 
     
     // Deselect one
     selectedCategories.value = selectedCategories.value.filter(c => c !== 'Serif')
     
-    expect(Object.keys(filteredFontCategories.value).length).toBe(4)
+    expect(Object.keys(filteredFontCategories.value).length).toBe(5)
     expect(filteredFontCategories.value['Serif']).toBeUndefined()
     expect(filteredFontCategories.value['Sans-Serif']).toBeDefined()
     expect(filteredFontCategories.value['System']).toBeDefined()
@@ -98,8 +101,8 @@ describe('useGoogleFonts', () => {
     const success = await loadInstalledFonts()
     
     expect(success).toBe(true)
-    expect(fontCategories.value['System']).toContain('Local Font 1')
-    expect(fontCategories.value['System']).toContain('Local Font 2')
+    expect(fontCategories.value['Installed']).toContain('Local Font 1')
+    expect(fontCategories.value['Installed']).toContain('Local Font 2')
   })
 
   it('selectRandomFont should respect category filter', () => {

@@ -24,6 +24,7 @@ export const SYSTEM_FONTS = [
  */
 export const FONT_CATEGORIES: FontCategories = {
   'System': SYSTEM_FONTS,
+  'Installed': [],
   'Sans-Serif': [
     'Roboto',
     'Open Sans',
