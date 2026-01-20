@@ -1,65 +1,37 @@
 <template>
   <div class="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
     <!-- Header (Persistent) -->
-    <!-- Header (Persistent) -->
     <AppHeader 
       :current-view="currentView"
       :matches-count="matches.length"
       @update:current-view="currentView = $event"
     />
 
-    <!-- Main Content Area -->
-    <SplitLayout 
+    <!-- Toolbar Controls (Only in editor view) -->
+    <ToolbarControls
       v-if="currentView === 'editor'"
-      :is-menu-open="isMobileMenuOpen"
-      @close-menu="isMobileMenuOpen = false"
+      ref="toolbarRef"
+      v-model:uploaded-logo="uploadedLogo"
+      v-model:preview-text="previewText"
+      v-model:selected-font="selectedFont"
+      v-model:selected-categories="selectedCategories"
+      v-model:font-size="fontSize"
+      v-model:font-weight="fontWeight"
+      v-model:letter-spacing="letterSpacing"
+      v-model:font-color="fontColor"
+      v-model:preview-bg="previewBg"
+      :font-categories="filteredFontCategories"
+      :all-categories="Object.keys(fontCategories) as any"
+      @update:selected-font="loadFont"
+      @randomize="selectRandomFont"
+    />
+
+    <!-- Main Content Area - Editor -->
+    <main 
+      v-if="currentView === 'editor'"
+      class="flex-1 bg-slate-50 overflow-y-auto flex items-center justify-center p-4 md:p-12 pb-24 md:pb-12 dark:bg-slate-950"
     >
-      <template #sidebar>
-        <!-- Upload Logo -->
-        <div class="space-y-3">
-          <LogoUpload v-model="uploadedLogo" />
-        </div>
-
-        <!-- Preview Text -->
-        <div class="space-y-3">
-            <label for="preview-text" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-              Preview Text
-            </label>
-            <input
-              id="preview-text"
-              v-model="previewText"
-              type="text"
-              placeholder="Enter your text here..."
-              class="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-blue-900 dark:placeholder-slate-500"
-            />
-        </div>
-
-          <!-- Font Selection -->
-          <div class="space-y-3">
-            <FontSelector 
-              v-model="selectedFont" 
-              :font-categories="filteredFontCategories"
-              v-model:selected-categories="selectedCategories"
-              :all-categories="Object.keys(fontCategories) as any"
-              :load-installed="loadInstalledFonts"
-              @update:model-value="loadFont"
-            />
-          </div>
-
-          <!-- Typography Settings -->
-          <div class="space-y-3 pb-6">
-            <h3 class="text-sm font-semibold text-slate-700">Typography Settings</h3>
-            <FontControls 
-              v-model:font-size="fontSize" 
-              v-model:font-weight="fontWeight"
-              v-model:letter-spacing="letterSpacing"
-              v-model:font-color="fontColor"
-              v-model:preview-bg="previewBg"
-            />
-          </div>
-      </template>
-
-      <template #content>
+      <div class="w-full max-w-7xl">
         <PreviewArea
           :logo="uploadedLogo"
           :text="previewText"
@@ -74,8 +46,8 @@
           class="!p-16 !shadow-2xl relative" 
           @toggle-save="handleToggleSave"
         />
-      </template>
-    </SplitLayout>
+      </div>
+    </main>
 
     <!-- Saved Matches View (Full Screen Replacement for now) -->
     <div v-else class="flex-1 overflow-y-auto p-8 pb-24 md:pb-8">
@@ -97,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import { useGoogleFonts } from '~/composables/useGoogleFonts'
 import { useMatches } from '~/composables/useMatches'
 import { useKeyboardShortcuts } from '~/composables/useKeyboardShortcuts'
@@ -109,6 +81,7 @@ const uploadedLogo = ref<string | null>(null)
 const previewBg = ref<'white' | 'black'>('white')
 const currentView = ref<'editor' | 'matches'>('editor')
 const isMobileMenuOpen = ref(false)
+const toolbarRef = ref<{ openSettings: () => void } | null>(null)
 
 // Composables
 const {
@@ -187,12 +160,13 @@ function handleNav(view: 'editor' | 'matches') {
 function handleToggleMenu() {
   if (currentView.value === 'matches') {
     currentView.value = 'editor'
-    // Small delay to allow component to mount before opening menu, 
-    // though in Vue 3 reactivity usually handles this, a nextTick might be needed if strict.
-    // simpler: just set it true.
-    isMobileMenuOpen.value = true
+    // Wait for toolbar to mount then open settings
+    nextTick(() => {
+      toolbarRef.value?.openSettings()
+    })
   } else {
-    isMobileMenuOpen.value = !isMobileMenuOpen.value
+    // Open settings popover
+    toolbarRef.value?.openSettings()
   }
 }
 
