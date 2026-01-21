@@ -1,21 +1,5 @@
 <template>
   <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-start gap-2 shrink-0 dark:bg-slate-900 dark:border-slate-800 relative">
-    <!-- Logo Upload Button -->
-    <div class="relative shrink-0">
-      <button 
-        ref="logoButtonRef"
-        @click="togglePopover('logo')"
-        class="flex items-center justify-center w-24 h-9 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors dark:border-slate-600 dark:hover:border-blue-500 overflow-hidden"
-        :class="{ 'border-solid border-blue-500': uploadedLogo }"
-        title="Upload logo"
-      >
-        <img v-if="uploadedLogo" :src="uploadedLogo" alt="Logo" class="w-full h-full object-contain" />
-        <svg v-else class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </button>
-    </div>
-
     <!-- Preview Text Input -->
     <input
       :value="previewText"
@@ -74,15 +58,6 @@
       class="fixed inset-0 z-40" 
       @click="activePopover = null"
     ></div>
-
-    <!-- Logo Popover -->
-    <div 
-      v-if="activePopover === 'logo'"
-      class="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 w-64 max-w-[calc(100vw-32px)]"
-      :style="popoverPosition"
-    >
-      <LogoUpload :model-value="uploadedLogo" @update:model-value="$emit('update:uploadedLogo', $event)" />
-    </div>
 
     <!-- Font Popover -->
     <div 
@@ -255,7 +230,6 @@ import { ref } from 'vue'
 import type { FontCategories, FontCategory } from '~/types'
 
 interface Props {
-  uploadedLogo: string | null
   previewText: string
   selectedFont: string
   fontCategories: Partial<FontCategories>
@@ -269,7 +243,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:uploadedLogo', value: string | null): void
   (e: 'update:previewText', value: string): void
   (e: 'update:selectedFont', value: string): void
   (e: 'update:selectedCategories', value: FontCategory[]): void

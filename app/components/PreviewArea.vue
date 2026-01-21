@@ -1,92 +1,54 @@
 <template>
-  <div 
-    class="rounded-2xl shadow-xl p-6 md:p-12 transition-colors duration-300"
-    :class="previewBg === 'white' ? 'bg-white' : 'bg-slate-900 border border-slate-800'"
-  >
-    <p class="text-sm font-semibold text-slate-500 mb-8 uppercase tracking-wide text-center">
-      Live Preview
-    </p>
-    
-    <!-- Action Buttons -->
-    <div class="absolute top-6 right-6 flex items-center gap-2">
-      <!-- Copy SVG Button -->
-      <button 
-        class="p-2 rounded-full transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-200 active:scale-95 group"
-        :class="copySuccess ? 'text-green-500' : 'text-slate-300 hover:text-blue-400'"
-        @click="copySvgToClipboard"
-        :title="copySuccess ? 'Copied!' : 'Copy as SVG'"
-      >
-        <svg 
-          v-if="!copySuccess"
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          stroke-width="2" 
-          stroke-linecap="round" 
-          stroke-linejoin="round"
-          class="w-7 h-7 transition-transform group-hover:scale-110"
-        >
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-        </svg>
-        <svg 
-          v-else
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          stroke-width="2.5" 
-          stroke-linecap="round" 
-          stroke-linejoin="round"
-          class="w-7 h-7"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </button>
-
-      <!-- Save Toggle Button (Heart) -->
-      <button 
-        class="p-2 rounded-full transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-pink-200 active:scale-95 group"
-        :class="isSaved ? 'text-pink-500' : 'text-slate-300 hover:text-pink-400'"
-        @click="$emit('toggle-save')"
-        title="Save match"
-      >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          viewBox="0 0 24 24" 
-          :fill="isSaved ? 'currentColor' : 'none'" 
-          stroke="currentColor" 
-          stroke-width="2" 
-          stroke-linecap="round" 
-          stroke-linejoin="round"
-          class="w-8 h-8 transition-transform group-hover:scale-110"
-        >
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-      </button>
-    </div>
-
+  <div>
     <!-- Inline Logo Mark Preview -->
-    <div 
-      class="flex items-center p-4 md:p-8 rounded-xl min-h-48 transition-colors duration-300 overflow-x-auto"
-      :class="previewBg === 'white' ? 'bg-slate-50' : 'bg-slate-800'"
-    >
+    <div class="flex items-center min-h-48 overflow-x-auto">
       <!-- Inner container for centering -->
       <div class="flex items-center gap-4 mx-auto shrink-0">
-        <!-- Logo -->
-        <img 
-          v-if="logo" 
-          :src="logo" 
-          alt="Logo preview" 
-          class="h-16 md:h-20 w-auto object-contain shrink-0"
-        />
-        <img 
-          v-else 
-          src="https://placehold.co/80x80/e2e8f0/94a3b8?text=Logo" 
-          alt="Placeholder logo" 
-          class="h-16 md:h-20 w-auto object-contain rounded-lg shrink-0"
-        />
+        <!-- Logo Upload Area -->
+        <div 
+          class="shrink-0 rounded-xl cursor-pointer transition-all duration-200 flex flex-col items-center justify-center overflow-hidden"
+          :class="[
+            logo 
+              ? 'h-20 md:h-24 w-20 md:w-24 hover:ring-2 hover:ring-blue-400 hover:ring-offset-2' 
+              : 'h-28 md:h-32 w-28 md:w-32 border-2 border-dashed hover:border-blue-400 ' + (previewBg === 'white' ? 'border-slate-300 hover:bg-slate-100' : 'border-slate-600 hover:bg-slate-700')
+          ]"
+          @click="triggerLogoUpload"
+          @dragover.prevent="isDragging = true"
+          @dragleave="isDragging = false"
+          @drop.prevent="handleLogoDrop"
+          :title="logo ? 'Click to change logo' : 'Click or drag to upload logo'"
+        >
+          <input
+            ref="logoInputRef"
+            type="file"
+            accept="image/*"
+            class="hidden"
+            @change="handleLogoSelect"
+          />
+          <img 
+            v-if="logo" 
+            :src="logo" 
+            alt="Logo preview" 
+            class="h-full w-full object-contain"
+          />
+          <template v-else>
+            <svg 
+              class="w-8 h-8 mb-2"
+              :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span 
+              class="text-sm font-medium"
+              :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'"
+            >
+              Add Logo
+            </span>
+          </template>
+        </div>
 
         <!-- Font Text -->
         <div
@@ -109,7 +71,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { CSSProperties } from 'vue'
-import { generateSvg } from '~/utils/svg'
 
 interface Props {
   logo: string | null
@@ -120,7 +81,6 @@ interface Props {
   letterSpacing: number
   fontColor: string
   fontCategory: string | null
-  isSaved?: boolean
   previewBg?: 'white' | 'black'
 }
 
@@ -128,11 +88,40 @@ const props = withDefaults(defineProps<Props>(), {
   previewBg: 'white'
 })
 
-defineEmits<{
-  (e: 'toggle-save'): void
+const emit = defineEmits<{
+  (e: 'update:logo', value: string | null): void
 }>()
 
-const copySuccess = ref(false)
+const isDragging = ref(false)
+const logoInputRef = ref<HTMLInputElement | null>(null)
+
+function triggerLogoUpload() {
+  logoInputRef.value?.click()
+}
+
+function handleLogoSelect(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    processLogoFile(file)
+  }
+}
+
+function handleLogoDrop(event: DragEvent) {
+  isDragging.value = false
+  const file = event.dataTransfer?.files[0]
+  if (file && file.type.startsWith('image/')) {
+    processLogoFile(file)
+  }
+}
+
+function processLogoFile(file: File) {
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    emit('update:logo', e.target?.result as string)
+  }
+  reader.readAsDataURL(file)
+}
 
 const fontStyle = computed<CSSProperties>(() => ({
   fontFamily: props.font,
@@ -141,30 +130,5 @@ const fontStyle = computed<CSSProperties>(() => ({
   letterSpacing: `${props.letterSpacing}px`,
   color: props.fontColor
 }))
-
-/**
- * Copies the generated SVG to clipboard
- */
-async function copySvgToClipboard() {
-  try {
-    const svgString = generateSvg({
-      logo: props.logo,
-      text: props.text,
-      font: props.font,
-      fontSize: props.fontSize,
-      fontWeight: props.fontWeight,
-      letterSpacing: props.letterSpacing,
-      fontColor: props.fontColor
-    })
-    await navigator.clipboard.writeText(svgString)
-    
-    // Show success feedback
-    copySuccess.value = true
-    setTimeout(() => {
-      copySuccess.value = false
-    }, 2000)
-  } catch (error) {
-    console.error('Failed to copy SVG:', error)
-  }
-}
 </script>
+
