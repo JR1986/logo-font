@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="rounded-2xl shadow-xl p-12 transition-colors duration-300"
+    class="rounded-2xl shadow-xl p-6 md:p-12 transition-colors duration-300"
     :class="previewBg === 'white' ? 'bg-white' : 'bg-slate-900 border border-slate-800'"
   >
     <p class="text-sm font-semibold text-slate-500 mb-8 uppercase tracking-wide text-center">
@@ -69,30 +69,33 @@
 
     <!-- Inline Logo Mark Preview -->
     <div 
-      class="flex items-center justify-center gap-4 p-8 rounded-xl min-h-48 transition-colors duration-300"
+      class="flex items-center p-4 md:p-8 rounded-xl min-h-48 transition-colors duration-300 overflow-x-auto"
       :class="previewBg === 'white' ? 'bg-slate-50' : 'bg-slate-800'"
     >
-      <!-- Logo -->
-      <img 
-        v-if="logo" 
-        :src="logo" 
-        alt="Logo preview" 
-        class="h-16 md:h-20 w-auto object-contain"
-      />
-      <img 
-        v-else 
-        src="https://placehold.co/80x80/e2e8f0/94a3b8?text=Logo" 
-        alt="Placeholder logo" 
-        class="h-16 md:h-20 w-auto object-contain rounded-lg"
-      />
+      <!-- Inner container for centering -->
+      <div class="flex items-center gap-4 mx-auto shrink-0">
+        <!-- Logo -->
+        <img 
+          v-if="logo" 
+          :src="logo" 
+          alt="Logo preview" 
+          class="h-16 md:h-20 w-auto object-contain shrink-0"
+        />
+        <img 
+          v-else 
+          src="https://placehold.co/80x80/e2e8f0/94a3b8?text=Logo" 
+          alt="Placeholder logo" 
+          class="h-16 md:h-20 w-auto object-contain rounded-lg shrink-0"
+        />
 
-      <!-- Font Text -->
-      <div
-        :style="fontStyle"
-        class="transition-all duration-300"
-        data-testid="preview-text"
-      >
-        {{ text }}
+        <!-- Font Text -->
+        <div
+          :style="fontStyle"
+          class="transition-all duration-300 whitespace-nowrap shrink-0"
+          data-testid="preview-text"
+        >
+          {{ text }}
+        </div>
       </div>
     </div>
     

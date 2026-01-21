@@ -1,11 +1,11 @@
 <template>
-  <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center gap-2 shrink-0 dark:bg-slate-900 dark:border-slate-800 relative">
+  <div class="bg-white border-b border-slate-200 px-3 py-2 flex items-center justify-start gap-2 shrink-0 dark:bg-slate-900 dark:border-slate-800 relative">
     <!-- Logo Upload Button -->
     <div class="relative shrink-0">
       <button 
         ref="logoButtonRef"
         @click="togglePopover('logo')"
-        class="flex items-center justify-center w-9 h-9 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors dark:border-slate-600 dark:hover:border-blue-500 overflow-hidden"
+        class="flex items-center justify-center w-24 h-9 rounded-lg border-2 border-dashed border-slate-300 hover:border-blue-400 transition-colors dark:border-slate-600 dark:hover:border-blue-500 overflow-hidden"
         :class="{ 'border-solid border-blue-500': uploadedLogo }"
         title="Upload logo"
       >
@@ -16,13 +16,13 @@
       </button>
     </div>
 
-    <!-- Preview Text Input - Grows to fill available space -->
+    <!-- Preview Text Input -->
     <input
       :value="previewText"
       @input="$emit('update:previewText', ($event.target as HTMLInputElement).value)"
       type="text"
       placeholder="Preview text..."
-      class="flex-1 min-w-0 px-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-blue-900"
+      class="w-40 sm:w-48 min-w-0 px-2 py-1.5 text-sm border border-slate-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200 dark:focus:ring-blue-900 shrink-0"
     />
 
     <!-- Font Selector - Compact on mobile -->
@@ -42,7 +42,7 @@
     <button
       ref="fontButtonRef"
       @click="togglePopover('font')"
-      class="sm:hidden flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:hover:bg-slate-800 shrink-0"
+      class="sm:hidden flex items-center justify-center gap-1 w-24 px-2 py-1.5 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:hover:bg-slate-800 shrink-0"
       :class="{ 'bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700': activePopover === 'font' }"
     >
       <span class="max-w-[60px] truncate">{{ selectedFont.split(' ')[0] }}</span>
@@ -56,7 +56,7 @@
       <button 
         ref="settingsButtonRef"
         @click="togglePopover('settings')"
-        class="flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:hover:bg-slate-800"
+        class="flex items-center justify-center gap-1 w-24 px-2 py-1.5 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors dark:border-slate-700 dark:hover:bg-slate-800"
         :class="{ 'bg-blue-50 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700': activePopover === 'settings' }"
         title="Settings"
       >
@@ -70,7 +70,7 @@
     <!-- Random Font Button -->
     <button
       @click="$emit('randomize')"
-      class="flex items-center justify-center w-9 h-9 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shrink-0"
+      class="flex items-center justify-center w-24 h-9 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shrink-0"
       title="Random font (Spacebar)"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
@@ -92,7 +92,7 @@
     <div 
       v-if="activePopover === 'logo'"
       class="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 w-64 max-w-[calc(100vw-32px)]"
-      :style="getPopoverPosition(logoButtonRef)"
+      :style="popoverPosition"
     >
       <LogoUpload :model-value="uploadedLogo" @update:model-value="$emit('update:uploadedLogo', $event)" />
     </div>
@@ -101,7 +101,7 @@
     <div 
       v-if="activePopover === 'font'"
       class="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 w-72 max-w-[calc(100vw-32px)] max-h-[70vh] overflow-y-auto"
-      :style="getPopoverPosition(fontButtonRef)"
+      :style="popoverPosition"
     >
       <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 dark:text-slate-400">Select Font</div>
       
@@ -144,7 +144,7 @@
     <div 
       v-if="activePopover === 'settings'"
       class="fixed z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 w-72 max-w-[calc(100vw-32px)] max-h-[80vh] overflow-y-auto"
-      :style="getPopoverPosition(settingsButtonRef)"
+      :style="popoverPosition"
     >
       <!-- Category Filter (Desktop only shows in settings) -->
       <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 hidden sm:block">
@@ -307,9 +307,42 @@ const settingsButtonRef = ref<HTMLElement | null>(null)
 
 type PopoverType = 'logo' | 'font' | 'settings' | null
 const activePopover = ref<PopoverType>(null)
+const popoverPosition = ref<{ top: string; left: string }>({ top: '120px', left: '16px' })
 
 function togglePopover(type: PopoverType) {
-  activePopover.value = activePopover.value === type ? null : type
+  if (activePopover.value === type) {
+    activePopover.value = null
+  } else {
+    // Calculate position before opening
+    const buttonRefs: Record<string, typeof logoButtonRef> = {
+      logo: logoButtonRef,
+      font: fontButtonRef,
+      settings: settingsButtonRef
+    }
+    const buttonRef = type ? buttonRefs[type] : null
+    if (buttonRef?.value) {
+      const rect = buttonRef.value.getBoundingClientRect()
+      const popoverWidth = 288
+      const viewportWidth = window.innerWidth
+      
+      // Center the popover under the button
+      let left = rect.left + (rect.width / 2) - (popoverWidth / 2)
+      
+      // Keep popover within viewport
+      if (left + popoverWidth > viewportWidth - 16) {
+        left = viewportWidth - popoverWidth - 16
+      }
+      
+      // Ensure minimum left margin
+      left = Math.max(16, left)
+      
+      popoverPosition.value = {
+        top: `${rect.bottom + 8}px`,
+        left: `${left}px`
+      }
+    }
+    activePopover.value = type
+  }
 }
 
 function toggleCategory(category: FontCategory) {
@@ -332,7 +365,7 @@ function handleFontChange(event: Event) {
 
 // Open settings popover (exposed for external triggering)
 function openSettings() {
-  activePopover.value = 'settings'
+  togglePopover('settings')
 }
 
 // Expose for parent component
@@ -348,8 +381,8 @@ function getPopoverPosition(buttonRef: typeof logoButtonRef) {
   const popoverWidth = 288
   const viewportWidth = window.innerWidth
   
-  // Position below the button
-  let left = rect.left
+  // Center the popover under the button
+  let left = rect.left + (rect.width / 2) - (popoverWidth / 2)
   
   // Keep popover within viewport
   if (left + popoverWidth > viewportWidth - 16) {

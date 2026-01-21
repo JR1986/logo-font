@@ -43,7 +43,7 @@
           :font-category="selectedFontCategory"
           :is-saved="isCurrentSaved"
           :preview-bg="previewBg"
-          class="!p-16 !shadow-2xl relative" 
+          class="!p-6 md:!p-16 !shadow-2xl relative" 
           @toggle-save="handleToggleSave"
         />
       </div>
