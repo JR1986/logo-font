@@ -177,7 +177,8 @@ const currentMatchConfig = computed(() => ({
   logo: uploadedLogo.value,
   fontColor: fontColor.value,
   fontCategory: selectedFontCategory.value,
-  previewBg: previewBg.value
+  previewBg: previewBg.value,
+  direction: layoutDirection.value
 }))
 
 const isCurrentSaved = computed(() => isMatchSaved(currentMatchConfig.value))

@@ -12,6 +12,7 @@ export interface SavedMatch {
   fontColor: string
   fontCategory: FontCategory | null
   previewBg: 'white' | 'black'
+  direction: 'horizontal' | 'vertical'
   timestamp: number
 }
 
@@ -42,7 +43,8 @@ export function useMatches() {
       m.logo === match.logo &&
       m.fontColor === match.fontColor &&
       m.fontCategory === match.fontCategory &&
-      m.previewBg === match.previewBg
+      m.previewBg === match.previewBg &&
+      m.direction === match.direction
     )?.id
   }
 
