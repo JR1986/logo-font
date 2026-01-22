@@ -19,6 +19,7 @@
       v-model:letter-spacing="letterSpacing"
       v-model:font-color="fontColor"
       v-model:preview-bg="previewBg"
+      v-model:layout-direction="layoutDirection"
       :font-categories="filteredFontCategories"
       :all-categories="Object.keys(fontCategories) as any"
       @update:selected-font="loadFont"
@@ -101,6 +102,7 @@
         :font-color="fontColor"
         :font-category="selectedFontCategory"
         :preview-bg="previewBg"
+        :direction="layoutDirection"
         @update:logo="uploadedLogo = $event"
       />
     </main>
@@ -136,6 +138,7 @@ import { generateSvg } from '~/utils/svg'
 const previewText = ref('Company Name')
 const uploadedLogo = ref<string | null>(null)
 const previewBg = ref<'white' | 'black'>('white')
+const layoutDirection = ref<'horizontal' | 'vertical'>('horizontal')
 const currentView = ref<'editor' | 'matches'>('editor')
 const isMobileMenuOpen = ref(false)
 const toolbarRef = ref<{ openSettings: () => void } | null>(null)

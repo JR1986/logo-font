@@ -1,9 +1,11 @@
 <template>
   <div>
     <!-- Inline Logo Mark Preview -->
-    <div class="flex items-center min-h-48 overflow-x-auto">
+    <div class="flex items-center min-h-48" :class="direction === 'vertical' ? 'overflow-y-auto' : 'overflow-x-auto'">
       <!-- Inner container for centering -->
-      <div class="flex items-center gap-4 mx-auto shrink-0">
+      <div 
+        class="gap-4 mx-auto shrink-0"
+        :class="direction === 'vertical' ? 'flex flex-col items-center' : 'flex items-center'">
         <!-- Logo Upload Area -->
         <div 
           class="shrink-0 rounded-xl cursor-pointer transition-all duration-200 flex flex-col items-center justify-center overflow-hidden"
@@ -82,10 +84,12 @@ interface Props {
   fontColor: string
   fontCategory: string | null
   previewBg?: 'white' | 'black'
+  direction?: 'horizontal' | 'vertical'
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  previewBg: 'white'
+  previewBg: 'white',
+  direction: 'horizontal'
 })
 
 const emit = defineEmits<{

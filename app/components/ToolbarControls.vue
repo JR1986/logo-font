@@ -220,6 +220,35 @@
             </button>
           </div>
         </div>
+        
+        <!-- Layout Direction -->
+        <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+          <label class="block text-xs text-slate-600 dark:text-slate-300 mb-1.5">Layout</label>
+          <div class="flex p-0.5 bg-slate-200 rounded-lg dark:bg-slate-700">
+            <button
+              type="button"
+              class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1"
+              :class="layoutDirection === 'horizontal' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
+              @click="$emit('update:layoutDirection', 'horizontal')"
+              title="Horizontal layout"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                <path d="M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="flex-1 py-1.5 text-xs font-medium rounded-md transition-all duration-200 flex items-center justify-center gap-1"
+              :class="layoutDirection === 'vertical' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200'"
+              @click="$emit('update:layoutDirection', 'vertical')"
+              title="Vertical layout"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 rotate-90">
+                <path d="M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </Teleport>
@@ -240,6 +269,7 @@ interface Props {
   letterSpacing: number
   fontColor: string
   previewBg: 'white' | 'black'
+  layoutDirection: 'horizontal' | 'vertical'
 }
 
 interface Emits {
@@ -251,6 +281,7 @@ interface Emits {
   (e: 'update:letterSpacing', value: number): void
   (e: 'update:fontColor', value: string): void
   (e: 'update:previewBg', value: 'white' | 'black'): void
+  (e: 'update:layoutDirection', value: 'horizontal' | 'vertical'): void
   (e: 'randomize'): void
 }
 
