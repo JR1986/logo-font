@@ -66,8 +66,20 @@
       :style="popoverPosition"
     >
       <!-- Header -->
-      <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+      <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
         <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider dark:text-slate-400">Select Font</div>
+        <button
+          v-if="!installedFontsLoaded"
+          @click="handleLoadInstalledFonts"
+          :disabled="isLoadingFonts"
+          class="text-xs px-2 py-1 rounded-md transition-colors"
+          :class="isLoadingFonts 
+            ? 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500 cursor-wait' 
+            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50'"
+        >
+          {{ isLoadingFonts ? 'Loading...' : 'My Fonts' }}
+        </button>
+        <span v-else class="text-xs text-green-600 dark:text-green-400">✓ Loaded</span>
       </div>
       
       <!-- Category Filter -->
@@ -264,6 +276,7 @@ interface Props {
   fontCategories: Partial<FontCategories>
   selectedCategories: FontCategory[]
   allCategories: FontCategory[]
+  installedFontsLoaded: boolean
   fontSize: number
   fontWeight: number
   letterSpacing: number
@@ -283,6 +296,7 @@ interface Emits {
   (e: 'update:previewBg', value: 'white' | 'black'): void
   (e: 'update:layoutDirection', value: 'horizontal' | 'vertical'): void
   (e: 'randomize'): void
+  (e: 'loadInstalledFonts'): Promise<boolean>
 }
 
 const props = defineProps<Props>()
@@ -296,6 +310,16 @@ const settingsButtonRef = ref<HTMLElement | null>(null)
 type PopoverType = 'logo' | 'font' | 'settings' | null
 const activePopover = ref<PopoverType>(null)
 const popoverPosition = ref<{ top: string; left: string }>({ top: '120px', left: '16px' })
+const isLoadingFonts = ref(false)
+
+async function handleLoadInstalledFonts() {
+  isLoadingFonts.value = true
+  try {
+    await emit('loadInstalledFonts')
+  } finally {
+    isLoadingFonts.value = false
+  }
+}
 
 function togglePopover(type: PopoverType) {
   if (activePopover.value === type) {

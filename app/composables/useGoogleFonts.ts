@@ -43,12 +43,19 @@ export function useGoogleFonts() {
     const filtered: Partial<FontCategories> = {}
     
     selectedCategories.value.forEach(category => {
-      if (fontCategories.value[category]) {
+      if (fontCategories.value[category] && fontCategories.value[category].length > 0) {
         filtered[category] = fontCategories.value[category]
       }
     })
     
     return filtered
+  })
+
+  // Only expose categories that have fonts (hides empty "Installed" until loaded)
+  const availableCategories = computed<FontCategory[]>(() => {
+    return (Object.keys(fontCategories.value) as FontCategory[]).filter(
+      category => fontCategories.value[category].length > 0
+    )
   })
 
   const selectedFontCategory = computed<FontCategory | null>(() => {
@@ -152,6 +159,7 @@ export function useGoogleFonts() {
     allFonts,
     selectedCategories,
     filteredFontCategories,
+    availableCategories,
     selectedFontCategory,
     loadFont,
     selectRandomFont,

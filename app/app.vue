@@ -21,9 +21,11 @@
       v-model:preview-bg="previewBg"
       v-model:layout-direction="layoutDirection"
       :font-categories="filteredFontCategories"
-      :all-categories="Object.keys(fontCategories) as any"
+      :all-categories="availableCategories"
+      :installed-fonts-loaded="installedFonts.length > 0"
       @update:selected-font="loadFont"
       @randomize="selectRandomFont"
+      @load-installed-fonts="loadInstalledFonts"
     />
 
     <!-- Main Content Area - Editor -->
@@ -153,11 +155,13 @@ const {
   fontColor,
   fontCategories,
   filteredFontCategories,
+  availableCategories,
   selectedCategories,
   selectedFontCategory,
   loadFont,
   selectRandomFont,
-  loadInstalledFonts
+  loadInstalledFonts,
+  installedFonts
 } = useGoogleFonts()
 
 const {

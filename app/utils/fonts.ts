@@ -1,30 +1,32 @@
 import type { FontCategories, FontCategory } from '~/types'
 
 /**
- * Standard System Fonts
+ * Standard System Fonts (for skipping Google Font loading)
  */
 export const SYSTEM_FONTS = [
   'Arial',
   'Helvetica',
-  'Times New Roman',
-  'Courier New',
   'Verdana',
   'Georgia',
-  'Palatino',
   'Garamond',
-  'Bookman',
-  'Comic Sans MS',
-  'Trebuchet MS',
-  'Arial Black',
-  'Impact'
+  'Trebuchet MS'
 ]
 
 /**
- * Font categories with all available Google Fonts
+ * Font categories with all available fonts for logo design
  */
 export const FONT_CATEGORIES: FontCategories = {
-  'System': SYSTEM_FONTS,
-  'Installed': [],
+  'Most Popular': [
+    'Helvetica',
+    'Montserrat',        // Proxima Nova alternative
+    'Josefin Sans',      // Futura alternative
+    'EB Garamond',       // Classic Garamond
+    'Libre Bodoni',      // Bodoni alternative
+    'Playfair Display',  // Didot alternative
+    'Inter',
+    'Poppins',
+    'Roboto'
+  ],
   'Sans-Serif': [
     'Roboto',
     'Open Sans',
@@ -34,12 +36,7 @@ export const FONT_CATEGORIES: FontCategories = {
     'Raleway',
     'Inter',
     'Oswald',
-    'Source Sans Pro',
     'Nunito',
-    'Ubuntu',
-    'PT Sans',
-    'Mukta',
-    'Rubik',
     'Work Sans',
     'Quicksand',
     'Outfit',
@@ -47,7 +44,6 @@ export const FONT_CATEGORIES: FontCategories = {
     'Manrope',
     'Space Grotesk',
     'Barlow',
-    'Exo 2',
     'Kanit',
     'Titillium Web',
     'Josefin Sans',
@@ -59,35 +55,43 @@ export const FONT_CATEGORIES: FontCategories = {
   'Serif': [
     'Playfair Display',
     'Merriweather',
-    'Crimson Text',
     'Libre Baskerville',
     'EB Garamond',
     'Cormorant Garamond',
     'Lora',
-    'PT Serif',
-    'Source Serif Pro',
-    'Bitter',
+    'Libre Bodoni',
+    'Bodoni Moda',
     'Spectral',
-    'Vollkorn'
+    'Crimson Pro',
+    'DM Serif Display'
   ],
   'Display': [
     'Bebas Neue',
     'Righteous',
-    'Lobster',
-    'Pacifico',
     'Alfa Slab One',
-    'Permanent Marker',
-    'Bungee',
-    'Orbitron'
+    'Orbitron',
+    'Anton',
+    'Archivo Black',
+    'Staatliches',
+    'Teko'
   ],
   'Handwriting': [
     'Dancing Script',
-    'Caveat',
-    'Satisfy',
     'Great Vibes',
     'Parisienne',
-    'Sacramento'
-  ]
+    'Sacramento',
+    'Alex Brush',
+    'Allura'
+  ],
+  'System': [
+    'Arial',
+    'Helvetica',
+    'Verdana',
+    'Georgia',
+    'Garamond',
+    'Trebuchet MS'
+  ],
+  'Installed': []
 }
 
 /**
