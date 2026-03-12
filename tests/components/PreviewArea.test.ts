@@ -41,18 +41,19 @@ describe('PreviewArea', () => {
   })
 
   it('renders font info', () => {
-    expect(wrapper.text()).toContain('Font: Roboto')
+    expect(wrapper.text()).toContain('Font')
+    expect(wrapper.text()).toContain('Roboto')
     expect(wrapper.text()).toContain('(Sans Serif)')
   })
 
   it('applies correct background classes based on prop', async () => {
     // Default (white)
-    expect(wrapper.find('.bg-white').exists()).toBe(true)
-    expect(wrapper.find('.bg-slate-900').exists()).toBe(false)
+    expect(wrapper.find('.bg-zinc-100').exists()).toBe(true)
+    expect(wrapper.find('.bg-zinc-900').exists()).toBe(false)
 
     // Dark mode
     await wrapper.setProps({ previewBg: 'black' })
-    expect(wrapper.find('.bg-slate-900').exists()).toBe(true)
-    expect(wrapper.find('.bg-white').exists()).toBe(false)
+    expect(wrapper.find('.bg-zinc-900').exists()).toBe(true)
+    expect(wrapper.find('.bg-zinc-100').exists()).toBe(false)
   })
 })

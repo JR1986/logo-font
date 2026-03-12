@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex flex-col bg-slate-50 dark:bg-slate-950 dark:text-slate-200 transition-colors duration-300">
+  <div class="h-screen flex flex-col bg-zinc-50 dark:bg-black dark:text-zinc-200 transition-colors duration-300">
     <!-- Header (Persistent) -->
     <AppHeader 
       :current-view="currentView"
@@ -26,25 +26,42 @@
       @update:selected-font="loadFont"
       @randomize="selectRandomFont"
       @load-installed-fonts="loadInstalledFonts"
+      @settings-toggle="handleSettingsToggle"
     />
 
     <!-- Main Content Area - Editor -->
     <main 
       v-if="currentView === 'editor'"
       class="flex-1 overflow-y-auto flex flex-col items-center justify-center p-4 md:p-12 pb-24 md:pb-12 transition-colors duration-300 relative"
-      :class="previewBg === 'white' ? 'bg-slate-50 dark:bg-slate-950' : 'bg-slate-900'"
+      :class="previewBg === 'white' ? 'bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/50 via-white to-rose-50/50 dark:from-indigo-950/20 dark:via-black dark:to-rose-950/20' : 'bg-zinc-950'"
     >
-      <!-- Action Buttons - Fixed position -->
-      <div class="absolute top-4 right-4 md:top-8 md:right-8 flex items-center gap-2">
+      <!-- Action Buttons - Pill containment -->
+      <div class="absolute top-4 right-4 md:top-8 md:right-8 flex items-center gap-1 md:gap-1.5 p-1 md:p-1.5 bg-white/80 backdrop-blur-md dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800 rounded-xl md:rounded-2xl shadow-sm z-10">
         <!-- Copy SVG Button -->
         <button 
-          class="p-2 rounded-full transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-200 active:scale-95 group"
-          :class="copySuccess ? 'text-green-500' : 'text-slate-400 hover:text-blue-500'"
+          class="p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all duration-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 active:scale-95 group"
+          :class="copyError ? 'text-red-500' : copySuccess ? 'text-green-500' : 'text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400'"
           @click="copySvgToClipboard"
-          :title="copySuccess ? 'Copied!' : 'Copy as SVG'"
+          :aria-label="copyError ? 'Copy failed' : copySuccess ? 'Copied!' : 'Copy as SVG'"
+          :title="copyError ? 'Copy failed — clipboard access denied' : copySuccess ? 'Copied!' : 'Copy as SVG'"
         >
           <svg 
-            v-if="!copySuccess"
+            v-if="copyError"
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"
+            class="w-6 h-6"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <svg 
+            v-else-if="!copySuccess"
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 24 24" 
             fill="none" 
@@ -74,10 +91,11 @@
 
         <!-- Save Toggle Button (Heart) -->
         <button 
-          class="p-2 rounded-full transition-all duration-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-pink-200 active:scale-95 group"
-          :class="isCurrentSaved ? 'text-pink-500' : 'text-slate-400 hover:text-pink-500'"
+          class="p-2 md:p-2.5 rounded-lg md:rounded-xl transition-all duration-200 hover:bg-rose-50 dark:hover:bg-rose-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 active:scale-95 group"
+          :class="isCurrentSaved ? 'text-rose-500' : 'text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400'"
           @click="handleToggleSave"
-          title="Save match"
+          :aria-label="isCurrentSaved ? 'Remove saved match' : 'Save match'"
+          :title="isCurrentSaved ? 'Remove saved match' : 'Save match'"
         >
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -120,7 +138,7 @@
     <!-- Mobile Bottom Navigation -->
     <BottomNav 
       :current-view="currentView"
-      :is-menu-open="isMobileMenuOpen"
+      :is-settings-open="isSettingsOpen"
       :matches-count="matches.length"
       @nav="handleNav"
       @toggle-menu="handleToggleMenu"
@@ -142,9 +160,10 @@ const uploadedLogo = ref<string | null>(null)
 const previewBg = ref<'white' | 'black'>('white')
 const layoutDirection = ref<'horizontal' | 'vertical'>('horizontal')
 const currentView = ref<'editor' | 'matches'>('editor')
-const isMobileMenuOpen = ref(false)
+const isSettingsOpen = ref(false)
 const toolbarRef = ref<{ openSettings: () => void } | null>(null)
 const copySuccess = ref(false)
+const copyError = ref(false)
 
 // Composables
 const {
@@ -219,7 +238,7 @@ function handleToggleSave() {
 function handleNav(view: 'editor' | 'matches') {
   currentView.value = view
   if (view === 'matches') {
-    isMobileMenuOpen.value = false
+    isSettingsOpen.value = false
   }
 }
 
@@ -234,6 +253,9 @@ async function copySvgToClipboard() {
       letterSpacing: letterSpacing.value,
       fontColor: fontColor.value
     })
+    if (!navigator.clipboard) {
+      throw new Error('Clipboard API not available')
+    }
     await navigator.clipboard.writeText(svgString)
     copySuccess.value = true
     setTimeout(() => {
@@ -241,7 +263,15 @@ async function copySvgToClipboard() {
     }, 2000)
   } catch (error) {
     console.error('Failed to copy SVG:', error)
+    copyError.value = true
+    setTimeout(() => {
+      copyError.value = false
+    }, 2500)
   }
+}
+
+function handleSettingsToggle(open: boolean) {
+  isSettingsOpen.value = open
 }
 
 function handleToggleMenu() {

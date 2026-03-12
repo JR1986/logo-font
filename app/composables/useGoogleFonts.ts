@@ -1,9 +1,9 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { FontCategories, FontCategory } from '~/types'
 import { 
   FONT_CATEGORIES, 
+  FONT_CATEGORY_MAP,
   getAllFonts, 
-  getFontCategory,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
@@ -59,14 +59,16 @@ export function useGoogleFonts() {
   })
 
   const selectedFontCategory = computed<FontCategory | null>(() => {
-    return getFontCategory(selectedFont.value)
+    return FONT_CATEGORY_MAP[selectedFont.value] ?? null
   })
 
   /**
-   * Load a Google Font dynamically via stylesheet
+   * Load a Google Font dynamically via stylesheet.
+   * Loads only the active weight to minimise network payload.
    */
-  function loadFont(fontName?: string): void {
+  function loadFont(fontName?: string, weight?: number): void {
     const font = fontName ?? selectedFont.value
+    const activeWeight = weight ?? fontWeight.value
     
     // Skip loading for system fonts or user-installed fonts
     if (SYSTEM_FONTS.includes(font) || installedFonts.value.includes(font)) {
@@ -74,19 +76,22 @@ export function useGoogleFonts() {
     }
 
     const encodedFontName = font.replace(/ /g, '+')
-    const linkId = 'google-font-link'
+    const linkId = `google-font-${encodedFontName}-${activeWeight}`
     
-    // Remove existing font link if present
-    const existingLink = document.getElementById(linkId)
-    if (existingLink) {
-      existingLink.remove()
+    // Already loaded this font at this weight — skip
+    if (document.getElementById(linkId)) {
+      return
     }
+
+    // Remove any previous link for this font (different weight)
+    const existingLinks = document.querySelectorAll(`[id^="google-font-${encodedFontName}-"]`)
+    existingLinks.forEach(el => el.remove())
     
-    // Create new font link
+    // Create new font link for just the active weight
     const link = document.createElement('link')
     link.id = linkId
     link.rel = 'stylesheet'
-    link.href = `https://fonts.googleapis.com/css2?family=${encodedFontName}:wght@100;200;300;400;500;600;700;800;900&display=swap`
+    link.href = `https://fonts.googleapis.com/css2?family=${encodedFontName}:wght@${activeWeight}&display=swap`
     document.head.appendChild(link)
   }
 
@@ -125,28 +130,26 @@ export function useGoogleFonts() {
   }
 
   /**
-   * Select a random font (different from current)
+   * Select a random font (different from current).
+   * Uses O(1) index-offset selection — guaranteed to pick a different font
+   * without any loop or retry risk.
    */
   function selectRandomFont(): void {
-    // Get flat list of currently available fonts based on filters
-    const availableFonts = Object.values(filteredFontCategories.value).flat()
-    
-    if (availableFonts.length === 0) return
+    const available = Object.values(filteredFontCategories.value).flat()
+    if (available.length === 0) return
 
-    const currentIndex = availableFonts.indexOf(selectedFont.value)
-    let randomIndex = currentIndex
-    
-    // Ensure we get a different font (unless it's the only one)
-    if (availableFonts.length > 1) {
-      while (randomIndex === currentIndex || randomIndex === -1) {
-        randomIndex = Math.floor(Math.random() * availableFonts.length)
-      }
-    } else {
-        randomIndex = 0
-    }
-    
-    selectedFont.value = availableFonts[randomIndex]!
+    const currentIndex = available.indexOf(selectedFont.value)
+    // Offset by 1..n-1 (never 0) to always pick a different font
+    const offset = 1 + Math.floor(Math.random() * Math.max(1, available.length - 1))
+    selectedFont.value = available[(currentIndex + offset) % available.length]!
     loadFont()
+  }
+
+  // Re-load font whenever weight changes (loads only the new weight)
+  if (typeof window !== 'undefined') {
+    watch(fontWeight, (newWeight) => {
+      loadFont(undefined, newWeight)
+    })
   }
 
   return {

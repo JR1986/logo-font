@@ -12,10 +12,14 @@ const mockCreateElement = vi.fn(() => ({
   remove: mockRemove
 }))
 const mockGetElementById = vi.fn()
+const mockQuerySelectorAll = vi.fn(() => ({
+  forEach: vi.fn()
+}))
 
 // @ts-ignore
 global.document = {
   getElementById: mockGetElementById,
+  querySelectorAll: mockQuerySelectorAll,
   createElement: mockCreateElement,
   head: {
     appendChild: mockAppendChild
@@ -43,19 +47,25 @@ describe('useGoogleFonts', () => {
     
     expect(mockCreateElement).toHaveBeenCalledWith('link')
     expect(mockAppendChild).toHaveBeenCalled()
-    // Verify link properties
+    // Verify link properties — link ID now includes the weight (default 400)
     const link = mockAppendChild.mock.calls[0][0]
-    expect(link.id).toBe('google-font-link')
+    expect(link.id).toBe('google-font-Roboto-400')
     expect(link.href).toContain('Roboto')
+    expect(link.href).toContain('wght@400')
+    expect(link.href).not.toContain('100;200;300')
   })
 
   it('loadFont should remove existing link if present', () => {
-    const mockExistingLink = { remove: mockRemove }
-    mockGetElementById.mockReturnValue(mockExistingLink)
+    // Return null from getElementById so the font-not-yet-loaded path runs
+    mockGetElementById.mockReturnValue(null)
+    // querySelectorAll returns a list with a removable element to simulate cleanup
+    const mockOldLink = { remove: mockRemove }
+    mockQuerySelectorAll.mockReturnValue({ forEach: (fn: any) => fn(mockOldLink) })
     
     const { loadFont } = useGoogleFonts()
-    loadFont('Open Sans')
+    loadFont('Open+Sans')
     
+    // The old weight-specific link should be removed
     expect(mockRemove).toHaveBeenCalled()
   })
 
@@ -129,18 +139,17 @@ describe('useGoogleFonts', () => {
     // However, if the current font is 'Roboto' and we click random, it should change to a Serif font.
     
     const serifFonts = [
-        'Playfair Display',
-        'Merriweather',
-        'Crimson Text',
-        'Libre Baskerville',
-        'EB Garamond',
-        'Cormorant Garamond',
-        'Lora',
-        'PT Serif',
-        'Source Serif Pro',
-        'Bitter',
-        'Spectral',
-        'Vollkorn'
+      'Playfair Display',
+      'Merriweather',
+      'Libre Baskerville',
+      'EB Garamond',
+      'Cormorant Garamond',
+      'Lora',
+      'Libre Bodoni',
+      'Bodoni Moda',
+      'Spectral',
+      'Crimson Pro',
+      'DM Serif Display'
     ]
     
     expect(serifFonts).toContain(selectedFont.value)

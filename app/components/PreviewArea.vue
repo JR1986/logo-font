@@ -8,17 +8,16 @@
         :class="direction === 'vertical' ? 'flex flex-col items-center' : 'flex items-center'">
         <!-- Logo Upload Area -->
         <div 
-          class="shrink-0 rounded-xl cursor-pointer transition-all duration-200 flex flex-col items-center justify-center overflow-hidden"
+          class="shrink-0 rounded-2xl cursor-pointer transition-all duration-300 flex flex-col items-center justify-center overflow-hidden hover:scale-105 active:scale-95 shadow-sm group"
           :class="[
             logo 
-              ? 'h-20 md:h-24 w-20 md:w-24 hover:ring-2 hover:ring-blue-400 hover:ring-offset-2' 
-              : 'h-28 md:h-32 w-28 md:w-32 border-2 border-dashed hover:border-blue-400 ' + (previewBg === 'white' ? 'border-slate-300 hover:bg-slate-100' : 'border-slate-600 hover:bg-slate-700')
+              ? 'h-24 md:h-32 w-24 md:w-32 ring-offset-2 ring-offset-transparent outline-none ring-2 ring-transparent focus-within:ring-indigo-600' 
+              : 'h-24 md:h-32 w-24 md:w-32 ' + (previewBg === 'white' ? 'bg-zinc-100 hover:bg-zinc-200 text-zinc-400 hover:text-zinc-700' : 'bg-zinc-900 hover:bg-zinc-800 text-zinc-600 hover:text-zinc-300')
           ]"
           @click="triggerLogoUpload"
           @dragover.prevent="isDragging = true"
-          @dragleave="isDragging = false"
           @drop.prevent="handleLogoDrop"
-          :title="logo ? 'Click to change logo' : 'Click or drag to upload logo'"
+          :title="logo ? 'Click to replace logo' : 'Upload a logo (click or drag)'"
         >
           <input
             ref="logoInputRef"
@@ -35,18 +34,14 @@
           />
           <template v-else>
             <svg 
-              class="w-8 h-8 mb-2"
-              :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'"
+              class="w-10 h-10 mb-2 transition-transform duration-300 group-hover:-translate-y-1"
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
             </svg>
-            <span 
-              class="text-sm font-medium"
-              :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'"
-            >
+            <span class="text-[10px] font-black uppercase tracking-widest">
               Add Logo
             </span>
           </template>
@@ -55,7 +50,7 @@
         <!-- Font Text -->
         <div
           :style="fontStyle"
-          class="transition-all duration-300 whitespace-nowrap shrink-0"
+          class="transition-colors duration-300 whitespace-nowrap shrink-0"
           data-testid="preview-text"
         >
           {{ text }}
@@ -63,10 +58,16 @@
       </div>
     </div>
     
-    <p class="text-sm mt-8 text-center transition-colors duration-300" :class="previewBg === 'white' ? 'text-slate-400' : 'text-slate-500'">
-      Font: <span class="font-semibold" :class="previewBg === 'white' ? 'text-slate-500' : 'text-slate-400'">{{ font }}</span> 
-      <span :class="previewBg === 'white' ? 'text-slate-300' : 'text-slate-600'">({{ fontCategory }})</span>
-    </p>
+    <div class="mt-12 md:mt-16 flex justify-center">
+      <div 
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors duration-300 shadow-sm border-2"
+        :class="previewBg === 'white' ? 'bg-white border-zinc-200 text-zinc-500' : 'bg-black border-zinc-800 text-zinc-400'"
+      >
+        <span class="opacity-50">Font</span>
+        <span :class="previewBg === 'white' ? 'text-zinc-900' : 'text-white'">{{ font }}</span>
+        <span class="opacity-50 text-[9px] font-bold" v-if="fontCategory">({{ fontCategory }})</span>
+      </div>
+    </div>
   </div>
 </template>
 

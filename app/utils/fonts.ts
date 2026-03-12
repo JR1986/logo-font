@@ -102,15 +102,21 @@ export function getAllFonts(): string[] {
 }
 
 /**
- * Get category for a given font
+ * Pre-built O(1) font → category lookup map.
+ * Use this instead of getFontCategory() in hot paths.
+ */
+export const FONT_CATEGORY_MAP: Readonly<Record<string, FontCategory>> = Object.fromEntries(
+  Object.entries(FONT_CATEGORIES).flatMap(([cat, fonts]) =>
+    fonts.map(font => [font, cat as FontCategory])
+  )
+) as Record<string, FontCategory>
+
+/**
+ * Get category for a given font.
+ * For performance-sensitive callers, use FONT_CATEGORY_MAP[font] directly.
  */
 export function getFontCategory(fontName: string): FontCategory | null {
-  for (const [category, fonts] of Object.entries(FONT_CATEGORIES)) {
-    if (fonts.includes(fontName)) {
-      return category as FontCategory
-    }
-  }
-  return null
+  return FONT_CATEGORY_MAP[fontName] ?? null
 }
 
 /**
@@ -119,3 +125,4 @@ export function getFontCategory(fontName: string): FontCategory | null {
 export const DEFAULT_FONT = 'Roboto'
 export const DEFAULT_FONT_SIZE = 48
 export const DEFAULT_FONT_WEIGHT = 400
+

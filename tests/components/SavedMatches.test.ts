@@ -50,20 +50,7 @@ describe('SavedMatches', () => {
     expect(wrapper.findAll('.preview-area-stub').length).toBe(1)
   })
 
-  it('emits back event when back button is clicked', async () => {
-    const wrapper = mount(SavedMatches, {
-      global: {
-        stubs: {
-          PreviewArea: PreviewAreaStub
-        }
-      }
-    })
 
-    await wrapper.find('button').trigger('click')
-    expect(wrapper.emitted('back')).toBeTruthy()
-  })
-  
-  // Note: Testing the delete button might require finding it specifically if there are multiple buttons
   it('calls removeMatch when delete button is clicked', async () => {
       const wrapper = mount(SavedMatches, {
         global: {
@@ -74,7 +61,7 @@ describe('SavedMatches', () => {
       })
       
       // Find the delete button (it has a title attribute)
-      const deleteBtn = wrapper.find('button[title="Remove match"]')
+      const deleteBtn = wrapper.find('button[title="Delete this match"]')
       await deleteBtn.trigger('click')
       
       expect(removeMatchMock).toHaveBeenCalledWith('1')

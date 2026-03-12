@@ -1,10 +1,12 @@
 <template>
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-2 z-50 flex justify-around items-center pb-safe">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t-2 border-zinc-200 dark:border-zinc-800 px-6 py-3 z-50 flex justify-around items-center pb-safe">
 
     <!-- Tools / Menu Toggle -->
     <button 
-      class="flex flex-col items-center gap-1 p-2 text-xs font-medium transition-colors"
-      :class="isMenuOpen ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'"
+      class="flex flex-col items-center gap-1.5 p-2 text-[10px] font-black uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-xl"
+      :class="isSettingsOpen ? 'text-indigo-600 dark:text-indigo-400' : 'text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white'"
+      :aria-pressed="isSettingsOpen"
+      aria-label="Open settings"
       @click="$emit('toggle-menu')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
@@ -15,15 +17,17 @@
 
     <!-- Saved Matches Tab -->
     <button 
-      class="flex flex-col items-center gap-1 p-2 text-xs font-medium transition-colors relative"
-      :class="currentView === 'matches' ? 'text-pink-600' : 'text-pink-400 hover:text-pink-600'"
+      class="flex flex-col items-center gap-1.5 p-2 text-[10px] font-black uppercase tracking-widest transition-colors relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 rounded-xl group"
+      :class="currentView === 'matches' ? 'text-rose-600 dark:text-rose-400' : 'text-zinc-400 hover:text-rose-600 dark:text-zinc-500 dark:hover:text-rose-400'"
+      :aria-current="currentView === 'matches' ? 'page' : undefined"
+      aria-label="Saved matches"
       @click="$emit('nav', 'matches')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
         <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3.25 7.875 3.25c2.106 0 3.875 1.042 4.946 2.56 1.07-1.518 2.84-2.56 4.946-2.56 3.161 0 5.625 2.072 5.625 5.001 0 3.925-2.438 7.111-4.735 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
       </svg>
       Saved
-      <span v-if="matchesCount > 0" class="absolute top-1 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-pink-600 text-[10px] text-white ring-2 ring-white">
+      <span v-if="matchesCount > 0" class="absolute top-1 right-0 sm:right-2 flex h-4 w-4 items-center justify-center rounded-full bg-zinc-900 text-[9px] font-black text-white ring-2 ring-white dark:bg-white dark:text-zinc-900 dark:ring-black">
         {{ matchesCount }}
       </span>
     </button>
@@ -33,7 +37,7 @@
 <script setup lang="ts">
 defineProps<{
   currentView: 'editor' | 'matches'
-  isMenuOpen: boolean
+  isSettingsOpen: boolean
   matchesCount: number
 }>()
 
@@ -48,3 +52,4 @@ defineEmits<{
   padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 </style>
+
