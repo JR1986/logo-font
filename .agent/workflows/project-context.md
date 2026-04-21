@@ -9,7 +9,7 @@ description: Project context and instructions for the Logo Font Matcher app
 This is a **Nuxt 4** application that helps users find the perfect font pairing for their logo. Users can:
 
 - Upload a logo image
-- Browse and select from 56 Google Fonts (organized by category)
+- Browse and select from 100 Fontshare fonts (organized by category)
 - Preview their logo alongside text in different fonts
 - Adjust font size and weight with sliders
 - Press **spacebar** to randomly cycle through fonts
@@ -18,7 +18,7 @@ This is a **Nuxt 4** application that helps users find the perfect font pairing 
 
 - **Framework**: Nuxt 4 (Vue 3 with Composition API)
 - **Styling**: Tailwind CSS via `@nuxtjs/tailwindcss`
-- **Fonts**: Google Fonts API (dynamically loaded)
+- **Fonts**: Fontshare API (dynamically loaded from api.fontshare.com)
 - **Language**: TypeScript
 
 ## Project Structure
@@ -31,12 +31,13 @@ This is a **Nuxt 4** application that helps users find the perfect font pairing 
 
 ### Font Categories
 
-Fonts are organized into 4 categories:
+Fonts are organized into 5 categories (fetched from Fontshare API):
 
-- **Sans-Serif** (30 fonts)
-- **Serif** (12 fonts)
-- **Display** (8 fonts)
-- **Handwriting** (6 fonts)
+- **Popular** (curated selection of top Fontshare fonts)
+- **Sans** (sans-serif fonts)
+- **Serif** (serif fonts)
+- **Display** (display/decorative fonts)
+- **Handwritten** (handwriting fonts)
 
 ### State Variables
 
@@ -48,7 +49,8 @@ Fonts are organized into 4 categories:
 
 ### Key Functions
 
-- `loadFont()` - Dynamically loads Google Font via stylesheet
+- `loadFont()` - Dynamically loads Fontshare font via CSS API stylesheet
+- `fetchFonts()` - Fetches font catalog from Fontshare API
 - `selectRandomFont()` - Randomly selects a different font (triggered by spacebar)
 - `processFile()` - Handles logo upload via FileReader
 
@@ -70,7 +72,7 @@ npm run preview
 1. Use Vue 3 Composition API with `<script setup lang="ts">`
 2. Use Tailwind CSS for styling
 3. Follow clean code principles e.g. split up files in to multiple components, composables, utils etc.
-4. Load Google Fonts dynamically with all weights (100-900)
+4. Load Fontshare fonts dynamically via `api.fontshare.com/v2/css` endpoint
 5. Maintain the categorized font structure when adding new fonts
 
 ### Unit tests

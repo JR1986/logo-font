@@ -180,7 +180,9 @@ const {
   loadFont,
   selectRandomFont,
   loadInstalledFonts,
-  installedFonts
+  installedFonts,
+  fetchFonts,
+  isLoading
 } = useGoogleFonts()
 
 const {
@@ -296,8 +298,9 @@ useKeyboardShortcuts([
   }
 ])
 
-// Load initial font
-onMounted(() => {
+// Fetch Fontshare catalog and load initial font
+onMounted(async () => {
+  await fetchFonts()
   loadFont()
 })
 </script>

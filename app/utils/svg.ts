@@ -107,12 +107,15 @@ export function generateSvg(options: SvgGenerationOptions): string {
   const textX = logo ? padding + logoSize + gap : padding
   const textY = totalHeight / 2 + fontSize * 0.35
 
+  // Convert font name to slug for Fontshare URL
+  const fontSlug = font.toLowerCase().replace(/\s+/g, '-')
+
   let svgContent = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${totalWidth}" height="${totalHeight}" viewBox="0 0 ${totalWidth} ${totalHeight}">\n`
   
-  // Add embedded font style with Google Fonts import
+  // Add embedded font style with Fontshare import
   svgContent += `  <defs>\n`
   svgContent += `    <style>\n`
-  svgContent += `      @import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@${fontWeight}&amp;display=swap');\n`
+  svgContent += `      @import url('https://api.fontshare.com/v2/css?f[]=${fontSlug}@1,2&amp;display=swap');\n`
   svgContent += `    </style>\n`
   svgContent += `  </defs>\n`
   

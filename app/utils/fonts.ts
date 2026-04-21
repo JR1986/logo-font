@@ -1,7 +1,149 @@
-import type { FontCategories, FontCategory } from '~/types'
+import type { FontCategories, FontCategory, FontshareFont, FontshareApiResponse } from '~/types'
 
 /**
- * Standard System Fonts (for skipping Google Font loading)
+ * Fontshare API endpoint
+ */
+const FONTSHARE_API_URL = 'https://api.fontshare.com/v2/fonts'
+
+/**
+ * Map Fontshare API category strings to our FontCategory type.
+ * Some fonts have comma-separated categories (e.g. "Sans, Display") — we take the first.
+ */
+function mapCategory(apiCategory: string): FontCategory {
+  const primary = apiCategory.split(',')[0]!.trim().toLowerCase()
+  
+  const mapping: Record<string, FontCategory> = {
+    'sans': 'Sans',
+    'serif': 'Serif',
+    'display': 'Display',
+    'handwritten': 'Handwritten',
+    'mono': 'Mono',
+    'blackletter': 'Display',
+  }
+
+  return mapping[primary] ?? 'Display'
+}
+
+/**
+ * Curated list of popular Fontshare fonts (by slug) for the "Popular" category.
+ * These are the most-used and highest quality Fontshare fonts.
+ */
+const POPULAR_SLUGS = new Set([
+  'satoshi',
+  'general-sans',
+  'clash-display',
+  'cabinet-grotesk',
+  'switzer',
+  'clash-grotesk',
+  'supreme',
+  'zodiak',
+  'sentient',
+  'panchang',
+  'ranade',
+  'boska',
+  'tanker',
+  'gambetta',
+  'melodrama',
+  'array',
+  'chillax',
+])
+
+/**
+ * Default font settings
+ */
+export const DEFAULT_FONT = 'Satoshi'
+export const DEFAULT_FONT_SIZE = 48
+export const DEFAULT_FONT_WEIGHT = 400
+
+/**
+ * Fetches the complete Fontshare font catalog from the API.
+ */
+export async function fetchFontshareFonts(): Promise<FontshareFont[]> {
+  const response = await fetch(`${FONTSHARE_API_URL}?limit=100&offset=0`)
+  if (!response.ok) {
+    throw new Error(`Fontshare API error: ${response.status}`)
+  }
+  const data: FontshareApiResponse = await response.json()
+  return data.fonts
+}
+
+/**
+ * Builds categorised font lists from raw Fontshare API data.
+ */
+export function buildFontCategories(fonts: FontshareFont[]): FontCategories {
+  const categories: FontCategories = {
+    'Popular': [],
+    'Sans': [],
+    'Serif': [],
+    'Display': [],
+    'Handwritten': [],
+    'Mono': [],
+    'Installed': [],
+  }
+
+  for (const font of fonts) {
+    const category = mapCategory(font.category)
+    categories[category].push(font.name)
+
+    if (POPULAR_SLUGS.has(font.slug)) {
+      categories['Popular'].push(font.name)
+    }
+  }
+
+  // Sort each category alphabetically
+  for (const key of Object.keys(categories) as FontCategory[]) {
+    categories[key].sort()
+  }
+
+  return categories
+}
+
+/**
+ * Builds slug → font name and font name → slug lookup maps.
+ */
+export function buildFontSlugMap(fonts: FontshareFont[]): {
+  nameToSlug: Map<string, string>
+  slugToName: Map<string, string>
+} {
+  const nameToSlug = new Map<string, string>()
+  const slugToName = new Map<string, string>()
+
+  for (const font of fonts) {
+    nameToSlug.set(font.name, font.slug)
+    slugToName.set(font.slug, font.name)
+  }
+
+  return { nameToSlug, slugToName }
+}
+
+/**
+ * Builds a font name → category lookup map.
+ */
+export function buildFontCategoryMap(fonts: FontshareFont[]): Map<string, FontCategory> {
+  const map = new Map<string, FontCategory>()
+  for (const font of fonts) {
+    map.set(font.name, mapCategory(font.category))
+  }
+  return map
+}
+
+/**
+ * Get flat array of all font names
+ */
+export function getAllFonts(categories: FontCategories): string[] {
+  // Deduplicate — a font can appear in both "Popular" and its primary category
+  return [...new Set(Object.values(categories).flat())]
+}
+
+/**
+ * Pre-built O(1) font → category lookup map.
+ * Use this instead of getFontCategory() in hot paths.
+ * NOTE: This is now empty at init and should be populated dynamically.
+ */
+export const FONT_CATEGORY_MAP: Record<string, FontCategory> = {}
+
+/**
+ * Standard System Fonts (for skipping Fontshare loading)
  */
 export const SYSTEM_FONTS = [
   'Arial',
@@ -9,120 +151,18 @@ export const SYSTEM_FONTS = [
   'Verdana',
   'Georgia',
   'Garamond',
-  'Trebuchet MS'
+  'Trebuchet MS',
 ]
 
 /**
- * Font categories with all available fonts for logo design
+ * Empty initial categories (populated after API fetch)
  */
 export const FONT_CATEGORIES: FontCategories = {
-  'Most Popular': [
-    'Helvetica',
-    'Montserrat',        // Proxima Nova alternative
-    'Josefin Sans',      // Futura alternative
-    'EB Garamond',       // Classic Garamond
-    'Libre Bodoni',      // Bodoni alternative
-    'Playfair Display',  // Didot alternative
-    'Inter',
-    'Poppins',
-    'Roboto'
-  ],
-  'Sans-Serif': [
-    'Roboto',
-    'Open Sans',
-    'Lato',
-    'Montserrat',
-    'Poppins',
-    'Raleway',
-    'Inter',
-    'Oswald',
-    'Nunito',
-    'Work Sans',
-    'Quicksand',
-    'Outfit',
-    'DM Sans',
-    'Manrope',
-    'Space Grotesk',
-    'Barlow',
-    'Kanit',
-    'Titillium Web',
-    'Josefin Sans',
-    'Archivo',
-    'Lexend',
-    'Figtree',
-    'Plus Jakarta Sans'
-  ],
-  'Serif': [
-    'Playfair Display',
-    'Merriweather',
-    'Libre Baskerville',
-    'EB Garamond',
-    'Cormorant Garamond',
-    'Lora',
-    'Libre Bodoni',
-    'Bodoni Moda',
-    'Spectral',
-    'Crimson Pro',
-    'DM Serif Display'
-  ],
-  'Display': [
-    'Bebas Neue',
-    'Righteous',
-    'Alfa Slab One',
-    'Orbitron',
-    'Anton',
-    'Archivo Black',
-    'Staatliches',
-    'Teko'
-  ],
-  'Handwriting': [
-    'Dancing Script',
-    'Great Vibes',
-    'Parisienne',
-    'Sacramento',
-    'Alex Brush',
-    'Allura'
-  ],
-  'System': [
-    'Arial',
-    'Helvetica',
-    'Verdana',
-    'Georgia',
-    'Garamond',
-    'Trebuchet MS'
-  ],
-  'Installed': []
+  'Popular': [],
+  'Sans': [],
+  'Serif': [],
+  'Display': [],
+  'Handwritten': [],
+  'Mono': [],
+  'Installed': [],
 }
-
-/**
- * Get flat array of all fonts
- */
-export function getAllFonts(): string[] {
-  return Object.values(FONT_CATEGORIES).flat()
-}
-
-/**
- * Pre-built O(1) font → category lookup map.
- * Use this instead of getFontCategory() in hot paths.
- */
-export const FONT_CATEGORY_MAP: Readonly<Record<string, FontCategory>> = Object.fromEntries(
-  Object.entries(FONT_CATEGORIES).flatMap(([cat, fonts]) =>
-    fonts.map(font => [font, cat as FontCategory])
-  )
-) as Record<string, FontCategory>
-
-/**
- * Get category for a given font.
- * For performance-sensitive callers, use FONT_CATEGORY_MAP[font] directly.
- */
-export function getFontCategory(fontName: string): FontCategory | null {
-  return FONT_CATEGORY_MAP[fontName] ?? null
-}
-
-/**
- * Default font settings
- */
-export const DEFAULT_FONT = 'Roboto'
-export const DEFAULT_FONT_SIZE = 48
-export const DEFAULT_FONT_WEIGHT = 400
-

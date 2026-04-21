@@ -1,13 +1,16 @@
 import { ref, computed, watch } from 'vue'
-import type { FontCategories, FontCategory } from '~/types'
-import { 
-  FONT_CATEGORIES, 
+import type { FontCategories, FontCategory, FontshareFont } from '~/types'
+import {
+  FONT_CATEGORIES,
   FONT_CATEGORY_MAP,
-  getAllFonts, 
+  SYSTEM_FONTS,
   DEFAULT_FONT,
   DEFAULT_FONT_SIZE,
   DEFAULT_FONT_WEIGHT,
-  SYSTEM_FONTS
+  fetchFontshareFonts,
+  buildFontCategories,
+  buildFontSlugMap,
+  buildFontCategoryMap,
 } from '~/utils/fonts'
 
 // Type definition for the Local Font Access API
@@ -19,7 +22,8 @@ interface LocalFontData {
 }
 
 /**
- * Composable for managing Google Fonts
+ * Composable for managing Fontshare fonts
+ * (kept export name for backwards compatibility)
  */
 export function useGoogleFonts() {
   const selectedFont = ref<string>(DEFAULT_FONT)
@@ -30,10 +34,14 @@ export function useGoogleFonts() {
 
   const installedFonts = ref<string[]>([])
   const fontCategories = ref<FontCategories>({ ...FONT_CATEGORIES })
-  
-  // Keep track of dynamically added fonts (installed ones)
+  const isLoading = ref(false)
+
+  // Font slug lookups (populated after API fetch)
+  const nameToSlug = ref<Map<string, string>>(new Map())
+  const categoryMap = ref<Map<string, FontCategory>>(new Map())
+
   const allFonts = computed(() => {
-    return Object.values(fontCategories.value).flat()
+    return [...new Set(Object.values(fontCategories.value).flat())]
   })
 
   // Initialize with all categories selected by default
@@ -41,13 +49,13 @@ export function useGoogleFonts() {
 
   const filteredFontCategories = computed<Partial<FontCategories>>(() => {
     const filtered: Partial<FontCategories> = {}
-    
+
     selectedCategories.value.forEach(category => {
       if (fontCategories.value[category] && fontCategories.value[category].length > 0) {
         filtered[category] = fontCategories.value[category]
       }
     })
-    
+
     return filtered
   })
 
@@ -59,39 +67,74 @@ export function useGoogleFonts() {
   })
 
   const selectedFontCategory = computed<FontCategory | null>(() => {
-    return FONT_CATEGORY_MAP[selectedFont.value] ?? null
+    return categoryMap.value.get(selectedFont.value) ?? FONT_CATEGORY_MAP[selectedFont.value] ?? null
   })
 
   /**
-   * Load a Google Font dynamically via stylesheet.
-   * Loads only the active weight to minimise network payload.
+   * Fetch all fonts from Fontshare API and populate categories.
    */
-  function loadFont(fontName?: string, weight?: number): void {
+  async function fetchFonts(): Promise<void> {
+    isLoading.value = true
+    try {
+      const fonts = await fetchFontshareFonts()
+      const categories = buildFontCategories(fonts)
+      const slugs = buildFontSlugMap(fonts)
+      const catMap = buildFontCategoryMap(fonts)
+
+      fontCategories.value = {
+        ...categories,
+        'Installed': installedFonts.value,
+      }
+      nameToSlug.value = slugs.nameToSlug
+      categoryMap.value = catMap
+
+      // Populate the global FONT_CATEGORY_MAP for compatibility
+      for (const [name, cat] of catMap) {
+        FONT_CATEGORY_MAP[name] = cat
+      }
+
+      // Update selected categories to include all that have fonts
+      selectedCategories.value = (Object.keys(fontCategories.value) as FontCategory[]).filter(
+        cat => fontCategories.value[cat].length > 0
+      )
+    } catch (error) {
+      console.error('Failed to fetch Fontshare fonts:', error)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Load a Fontshare font dynamically via stylesheet.
+   * Uses the Fontshare CSS API with variable font style (covers all weights).
+   */
+  function loadFont(fontName?: string, _weight?: number): void {
     const font = fontName ?? selectedFont.value
-    const activeWeight = weight ?? fontWeight.value
-    
+
     // Skip loading for system fonts or user-installed fonts
     if (SYSTEM_FONTS.includes(font) || installedFonts.value.includes(font)) {
       return
     }
 
-    const encodedFontName = font.replace(/ /g, '+')
-    const linkId = `google-font-${encodedFontName}-${activeWeight}`
-    
-    // Already loaded this font at this weight — skip
+    const slug = nameToSlug.value.get(font)
+    if (!slug) {
+      // Font not in Fontshare catalog — skip
+      return
+    }
+
+    const linkId = `fontshare-${slug}`
+
+    // Already loaded — skip
     if (document.getElementById(linkId)) {
       return
     }
 
-    // Remove any previous link for this font (different weight)
-    const existingLinks = document.querySelectorAll(`[id^="google-font-${encodedFontName}-"]`)
-    existingLinks.forEach(el => el.remove())
-    
-    // Create new font link for just the active weight
+    // Create font link using Fontshare CSS API
+    // @1 = variable font (covers all weights), @2 = variable italic
     const link = document.createElement('link')
     link.id = linkId
     link.rel = 'stylesheet'
-    link.href = `https://fonts.googleapis.com/css2?family=${encodedFontName}:wght@${activeWeight}&display=swap`
+    link.href = `https://api.fontshare.com/v2/css?f[]=${slug}@1,2&display=swap`
     document.head.appendChild(link)
   }
 
@@ -107,21 +150,19 @@ export function useGoogleFonts() {
     try {
       // @ts-expect-error - Experimental API
       const localFonts: LocalFontData[] = await window.queryLocalFonts()
-      
+
       // Extract unique font families
       const families = new Set<string>()
       localFonts.forEach(font => families.add(font.family))
-      
+
       installedFonts.value = Array.from(families).sort()
-      
-      // Update the categories to include installed fonts in 'Installed'
-      // We keep System fonts separate
-      
+
+      // Update the categories to include installed fonts
       fontCategories.value = {
         ...fontCategories.value,
-        'Installed': installedFonts.value
+        'Installed': installedFonts.value,
       }
-      
+
       return true
     } catch (e) {
       console.error('Permission denied or error querying local fonts', e)
@@ -145,10 +186,11 @@ export function useGoogleFonts() {
     loadFont()
   }
 
-  // Re-load font whenever weight changes (loads only the new weight)
+  // Re-load font whenever weight changes
+  // Fontshare variable fonts cover all weights in a single load, so no action needed
   if (typeof window !== 'undefined') {
-    watch(fontWeight, (newWeight) => {
-      loadFont(undefined, newWeight)
+    watch(fontWeight, () => {
+      // Fontshare variable fonts already include all weights — no reload needed
     })
   }
 
@@ -167,6 +209,8 @@ export function useGoogleFonts() {
     loadFont,
     selectRandomFont,
     loadInstalledFonts,
-    installedFonts
+    installedFonts,
+    fetchFonts,
+    isLoading,
   }
 }

@@ -9,8 +9,8 @@ export default defineNuxtConfig({
   app: {
     head: {
       link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }
+        { rel: 'preconnect', href: 'https://api.fontshare.com' },
+        { rel: 'preconnect', href: 'https://cdn.fontshare.com', crossorigin: '' }
       ]
     }
   }
