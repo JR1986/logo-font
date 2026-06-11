@@ -22,7 +22,7 @@
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.0.11",
-    "playright": "^0.0.22",
+    "playwright": "^1.60.0",
     "vitest": "^3.2.4"
   }
 }

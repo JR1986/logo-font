@@ -85,19 +85,51 @@ export function escapeXml(text: string): string {
 }
 
 /**
+ * Measures the rendered width of text for the given font settings.
+ * Uses the Canvas 2D API when available (accurate per-glyph measurement),
+ * falling back to a rough character-count estimate in non-browser contexts.
+ */
+export function measureTextWidth(
+  text: string,
+  font: string,
+  fontSize: number,
+  fontWeight: number,
+  letterSpacing: number
+): number {
+  // letter-spacing adds (n - 1) gaps between characters
+  const spacingWidth = Math.max(0, text.length - 1) * letterSpacing
+
+  if (typeof document !== 'undefined') {
+    try {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.font = `${fontWeight} ${fontSize}px '${font}', sans-serif`
+        return ctx.measureText(text).width + spacingWidth
+      }
+    } catch {
+      // Fall through to estimate
+    }
+  }
+
+  // Fallback estimate for SSR / non-browser environments
+  return text.length * fontSize * 0.6 + spacingWidth
+}
+
+/**
  * Generates an SVG string containing the logo and styled text.
  * For SVG logos, the content is inlined for full design tool compatibility.
  * For raster logos (PNG/JPG), an image reference is used (limited compatibility).
  */
 export function generateSvg(options: SvgGenerationOptions): string {
   const { logo, text, font, fontSize, fontWeight, letterSpacing, fontColor } = options
-  
+
   const logoSize = 80
   const gap = 16
   const padding = 24
-  
-  // Calculate text width estimate (rough approximation)
-  const textWidth = text.length * fontSize * 0.6
+
+  // Measure text width (accurate in browser, estimated otherwise)
+  const textWidth = measureTextWidth(text, font, fontSize, fontWeight, letterSpacing)
   const totalWidth = (logo ? logoSize + gap : 0) + textWidth + padding * 2
   const totalHeight = Math.max(logoSize, fontSize * 1.2) + padding * 2
   

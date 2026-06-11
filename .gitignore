@@ -12,6 +12,7 @@ node_modules
 # Logs
 logs
 *.log
+vitest_output.txt
 
 # Misc
 .DS_Store

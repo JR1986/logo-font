@@ -76,8 +76,10 @@ describe('svg utils', () => {
 
     it('includes font import', () => {
       const svg = generateSvg(defaultOptions)
-      
-      expect(svg).toContain('fonts.googleapis.com')
+
+      // Fonts are loaded from the Fontshare CSS API
+      expect(svg).toContain('api.fontshare.com')
+      expect(svg).toContain('roboto')
       expect(svg).toContain('Roboto')
     })
 

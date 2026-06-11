@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { FontCategory } from '~/types'
 
 export interface SavedMatch {
@@ -16,8 +16,41 @@ export interface SavedMatch {
   timestamp: number
 }
 
+const STORAGE_KEY = 'logo-font:matches'
+
+/**
+ * Load persisted matches from localStorage (client only).
+ */
+function loadMatches(): SavedMatch[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch (e) {
+    console.error('Failed to load saved matches:', e)
+    return []
+  }
+}
+
 // Global state to persist across component re-renders
-const matches = ref<SavedMatch[]>([])
+const matches = ref<SavedMatch[]>(loadMatches())
+
+// Persist to localStorage whenever matches change (client only)
+if (typeof window !== 'undefined') {
+  watch(
+    matches,
+    (value) => {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+      } catch (e) {
+        console.error('Failed to persist saved matches:', e)
+      }
+    },
+    { deep: true }
+  )
+}
 
 export function useMatches() {
   function saveMatch(match: Omit<SavedMatch, 'id' | 'timestamp'>) {
@@ -34,7 +67,7 @@ export function useMatches() {
   }
 
   function findMatchId(match: Omit<SavedMatch, 'id' | 'timestamp'>): string | undefined {
-    return matches.value.find(m => 
+    return matches.value.find(m =>
       m.font === match.font &&
       m.text === match.text &&
       m.fontSize === match.fontSize &&
