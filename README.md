@@ -1,75 +1,35 @@
-# Nuxt Minimal Starter
+# logofont.
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Find the font that fits your logo mark.
+
+Drop in your logo, type your brand name, and shuffle through the [Fontshare](https://www.fontshare.com) catalog until the wordmark clicks. Built with Nuxt 4, Vue 3 and Tailwind CSS.
+
+## How it works
+
+- **Type on the canvas** — the wordmark is edited inline, right where you see it.
+- **`space`** shuffles to a random font, **`←` / `→`** walk back and forth through everything you tried.
+- **Browse fonts** from the dock — every font renders *your* brand name as a live specimen (lazy-loaded as you scroll).
+- **`S`** (or the heart) saves a match. Saved matches persist in `localStorage` and live in the side drawer — click one to load it back into the editor.
+- **Tune** size, weight, letter spacing, wordmark color, canvas (light/dark) and layout (logo beside or above the text).
+- **Export** from the header: copy SVG (`C`), download SVG / PNG, or generate a `DESIGN.md` brand sheet with the full type spec, colors, CSS snippet and Fontshare embed link.
+- **My fonts** — load locally installed fonts via the Local Font Access API (Chromium browsers).
 
 ## Setup
 
-Make sure to install dependencies:
-
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+## Development
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
+npm run dev      # start dev server on http://localhost:3000
+npm test         # run the vitest suite
 ```
 
 ## Production
 
-Build the application for production:
-
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run build    # build for production
+npm run preview  # preview the production build
 ```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

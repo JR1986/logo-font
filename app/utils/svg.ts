@@ -12,6 +12,7 @@ export interface SvgGenerationOptions {
   fontWeight: number
   letterSpacing: number
   fontColor: string
+  direction?: 'horizontal' | 'vertical'
 }
 
 interface ExtractedSvgContent {
@@ -90,22 +91,41 @@ export function escapeXml(text: string): string {
  * For raster logos (PNG/JPG), an image reference is used (limited compatibility).
  */
 export function generateSvg(options: SvgGenerationOptions): string {
-  const { logo, text, font, fontSize, fontWeight, letterSpacing, fontColor } = options
-  
+  const { logo, text, font, fontSize, fontWeight, letterSpacing, fontColor, direction = 'horizontal' } = options
+
   const logoSize = 80
   const gap = 16
   const padding = 24
-  
+  const isVertical = direction === 'vertical'
+
   // Calculate text width estimate (rough approximation)
   const textWidth = text.length * fontSize * 0.6
-  const totalWidth = (logo ? logoSize + gap : 0) + textWidth + padding * 2
-  const totalHeight = Math.max(logoSize, fontSize * 1.2) + padding * 2
-  
-  // Position calculations
-  const logoX = padding
-  const logoY = (totalHeight - logoSize) / 2
-  const textX = logo ? padding + logoSize + gap : padding
-  const textY = totalHeight / 2 + fontSize * 0.35
+
+  let totalWidth: number
+  let totalHeight: number
+  let logoX: number
+  let logoY: number
+  let textX: number
+  let textY: number
+  let textAnchor: 'start' | 'middle' = 'start'
+
+  if (isVertical) {
+    // Logo stacked above the text, both centered
+    totalWidth = Math.max(logo ? logoSize : 0, textWidth) + padding * 2
+    totalHeight = (logo ? logoSize + gap : 0) + fontSize * 1.2 + padding * 2
+    logoX = (totalWidth - logoSize) / 2
+    logoY = padding
+    textX = totalWidth / 2
+    textY = (logo ? padding + logoSize + gap : padding) + fontSize * 0.95
+    textAnchor = 'middle'
+  } else {
+    totalWidth = (logo ? logoSize + gap : 0) + textWidth + padding * 2
+    totalHeight = Math.max(logoSize, fontSize * 1.2) + padding * 2
+    logoX = padding
+    logoY = (totalHeight - logoSize) / 2
+    textX = logo ? padding + logoSize + gap : padding
+    textY = totalHeight / 2 + fontSize * 0.35
+  }
 
   // Convert font name to slug for Fontshare URL
   const fontSlug = font.toLowerCase().replace(/\s+/g, '-')
@@ -141,7 +161,8 @@ export function generateSvg(options: SvgGenerationOptions): string {
   }
   
   // Add text element with styling
-  svgContent += `  <text x="${textX}" y="${textY}" font-family="'${font}', sans-serif" font-size="${fontSize}" font-weight="${fontWeight}" letter-spacing="${letterSpacing}" fill="${fontColor}">${escapeXml(text)}</text>\n`
+  const anchorAttr = textAnchor === 'middle' ? ' text-anchor="middle"' : ''
+  svgContent += `  <text x="${textX}" y="${textY}"${anchorAttr} font-family="'${font}', sans-serif" font-size="${fontSize}" font-weight="${fontWeight}" letter-spacing="${letterSpacing}" fill="${fontColor}">${escapeXml(text)}</text>\n`
   
   svgContent += `</svg>`
   

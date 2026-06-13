@@ -30,7 +30,7 @@ export function useGoogleFonts() {
   const fontSize = ref<number>(DEFAULT_FONT_SIZE)
   const fontWeight = ref<number>(DEFAULT_FONT_WEIGHT)
   const letterSpacing = ref<number>(0)
-  const fontColor = ref<string>('#1e293b')
+  const fontColor = ref<string>('#141413')
 
   const installedFonts = ref<string[]>([])
   const fontCategories = ref<FontCategories>({ ...FONT_CATEGORIES })
@@ -69,6 +69,18 @@ export function useGoogleFonts() {
   const selectedFontCategory = computed<FontCategory | null>(() => {
     return categoryMap.value.get(selectedFont.value) ?? FONT_CATEGORY_MAP[selectedFont.value] ?? null
   })
+
+  // Fontshare slug for the selected font (null for system/local fonts)
+  const selectedFontSlug = computed<string | null>(() => {
+    return nameToSlug.value.get(selectedFont.value) ?? null
+  })
+
+  /**
+   * Look up the Fontshare slug for any font name.
+   */
+  function getFontSlug(fontName: string): string | null {
+    return nameToSlug.value.get(fontName) ?? null
+  }
 
   /**
    * Fetch all fonts from Fontshare API and populate categories.
@@ -176,7 +188,9 @@ export function useGoogleFonts() {
    * without any loop or retry risk.
    */
   function selectRandomFont(): void {
-    const available = Object.values(filteredFontCategories.value).flat()
+    // Dedupe: a font can appear in both "Popular" and its primary category,
+    // and duplicates would let the offset trick land on the same font again
+    const available = [...new Set(Object.values(filteredFontCategories.value).flat())]
     if (available.length === 0) return
 
     const currentIndex = available.indexOf(selectedFont.value)
@@ -206,6 +220,8 @@ export function useGoogleFonts() {
     filteredFontCategories,
     availableCategories,
     selectedFontCategory,
+    selectedFontSlug,
+    getFontSlug,
     loadFont,
     selectRandomFont,
     loadInstalledFonts,

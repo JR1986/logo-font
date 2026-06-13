@@ -74,11 +74,36 @@ describe('svg utils', () => {
       expect(svg).toContain('</svg>')
     })
 
-    it('includes font import', () => {
+    it('includes Fontshare font import', () => {
       const svg = generateSvg(defaultOptions)
-      
-      expect(svg).toContain('fonts.googleapis.com')
+
+      expect(svg).toContain('api.fontshare.com')
+      expect(svg).toContain('roboto')
       expect(svg).toContain('Roboto')
+    })
+
+    it('lays out horizontally by default (no text anchor)', () => {
+      const svg = generateSvg(defaultOptions)
+
+      expect(svg).not.toContain('text-anchor')
+    })
+
+    it('centers text when direction is vertical', () => {
+      const svg = generateSvg({ ...defaultOptions, direction: 'vertical' })
+
+      expect(svg).toContain('text-anchor="middle"')
+    })
+
+    it('stacks logo above text in vertical direction', () => {
+      const svg = generateSvg({
+        ...defaultOptions,
+        direction: 'vertical',
+        logo: 'data:image/png;base64,abc123'
+      })
+
+      // Logo sits at top padding, horizontally centered
+      expect(svg).toContain('y="24"')
+      expect(svg).toContain('<image')
     })
 
     it('includes text element with correct styling', () => {

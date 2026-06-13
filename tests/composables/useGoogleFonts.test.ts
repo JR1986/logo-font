@@ -1,157 +1,154 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useGoogleFonts } from '~/composables/useGoogleFonts'
-import { registerEndpoint } from '@nuxt/test-utils/runtime'
+import type { FontshareFont } from '~/types'
 
-// Mock document for head management
-const mockRemove = vi.fn()
-const mockAppendChild = vi.fn()
-const mockCreateElement = vi.fn(() => ({
-  id: '',
-  rel: '',
-  href: '',
-  remove: mockRemove
-}))
-const mockGetElementById = vi.fn()
-const mockQuerySelectorAll = vi.fn(() => ({
-  forEach: vi.fn()
-}))
-
-// @ts-ignore
-global.document = {
-  getElementById: mockGetElementById,
-  querySelectorAll: mockQuerySelectorAll,
-  createElement: mockCreateElement,
-  head: {
-    appendChild: mockAppendChild
-  }
+function makeFont(name: string, slug: string, category: string): FontshareFont {
+  return { name, slug, category, styles: [], is_hot: false, is_top: false, views: 0 }
 }
 
-describe('useGoogleFonts', () => {
+const sampleFonts: FontshareFont[] = [
+  makeFont('Satoshi', 'satoshi', 'Sans'),
+  makeFont('General Sans', 'general-sans', 'Sans'),
+  makeFont('Sentient', 'sentient', 'Serif'),
+  makeFont('Zodiak', 'zodiak', 'Serif'),
+  makeFont('Clash Display', 'clash-display', 'Display')
+]
+
+describe('useGoogleFonts (Fontshare)', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ count: sampleFonts.length, count_total: sampleFonts.length, fonts: sampleFonts })
+    })))
+    // Clean stylesheet links added by previous tests
+    document.querySelectorAll('link').forEach(link => link.remove())
   })
 
-  it('should initialize with default state', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('initializes with default state', () => {
     const { selectedFont, fontSize, fontWeight, fontColor } = useGoogleFonts()
-    
-    expect(selectedFont.value).toBe('Roboto')
+
+    expect(selectedFont.value).toBe('Satoshi')
     expect(fontSize.value).toBe(48)
     expect(fontWeight.value).toBe(400)
-    expect(fontColor.value).toBe('#1e293b')
+    expect(fontColor.value).toBe('#141413')
   })
 
-  it('loadFont should create link element', () => {
-    const { loadFont } = useGoogleFonts()
-    
-    loadFont('Roboto')
-    
-    expect(mockCreateElement).toHaveBeenCalledWith('link')
-    expect(mockAppendChild).toHaveBeenCalled()
-    // Verify link properties — link ID now includes the weight (default 400)
-    const link = mockAppendChild.mock.calls[0][0]
-    expect(link.id).toBe('google-font-Roboto-400')
-    expect(link.href).toContain('Roboto')
-    expect(link.href).toContain('wght@400')
-    expect(link.href).not.toContain('100;200;300')
+  it('fetchFonts populates categories from the API', async () => {
+    const { fetchFonts, fontCategories } = useGoogleFonts()
+
+    await fetchFonts()
+
+    expect(fontCategories.value['Sans']).toContain('Satoshi')
+    expect(fontCategories.value['Serif']).toContain('Sentient')
+    expect(fontCategories.value['Display']).toContain('Clash Display')
+    // Curated populars present
+    expect(fontCategories.value['Popular']).toContain('Satoshi')
   })
 
-  it('loadFont should remove existing link if present', () => {
-    // Return null from getElementById so the font-not-yet-loaded path runs
-    mockGetElementById.mockReturnValue(null)
-    // querySelectorAll returns a list with a removable element to simulate cleanup
-    const mockOldLink = { remove: mockRemove }
-    mockQuerySelectorAll.mockReturnValue({ forEach: (fn: any) => fn(mockOldLink) })
-    
-    const { loadFont } = useGoogleFonts()
-    loadFont('Open+Sans')
-    
-    // The old weight-specific link should be removed
-    expect(mockRemove).toHaveBeenCalled()
+  it('availableCategories only lists non-empty categories', async () => {
+    const { fetchFonts, availableCategories } = useGoogleFonts()
+
+    await fetchFonts()
+
+    expect(availableCategories.value).toContain('Sans')
+    expect(availableCategories.value).not.toContain('Mono')
+    expect(availableCategories.value).not.toContain('Installed')
   })
 
-  it('selectRandomFont should update selectedFont', () => {
-    const { selectedFont, selectRandomFont, selectedCategories } = useGoogleFonts()
-    const initialFont = selectedFont.value
-    
-    // Force selection from a category that triggers a load (non-System)
-    selectedCategories.value = ['Sans-Serif']
-    
-    // Attempt multiple times to ensure change (randomness might pick same, although while loop prevents it)
-    selectRandomFont()
-    
-    expect(selectedFont.value).not.toBe(initialFont)
-    expect(mockCreateElement).toHaveBeenCalled() // Should trigger load
+  it('loadFont appends a Fontshare stylesheet link once', async () => {
+    const { fetchFonts, loadFont } = useGoogleFonts()
+    await fetchFonts()
+
+    loadFont('Sentient')
+    loadFont('Sentient')
+
+    const links = document.querySelectorAll('link#fontshare-sentient')
+    expect(links).toHaveLength(1)
+    expect(links[0]?.getAttribute('href')).toContain('f[]=sentient@1,2')
   })
 
-  it('filteredFontCategories should update based on selectedCategories', () => {
-    const { filteredFontCategories, selectedCategories } = useGoogleFonts()
-    
-    // Initially all selected (now 6 including System and Installed)
-    expect(Object.keys(filteredFontCategories.value).length).toBe(6) 
-    
-    // Deselect one
-    selectedCategories.value = selectedCategories.value.filter(c => c !== 'Serif')
-    
-    expect(Object.keys(filteredFontCategories.value).length).toBe(5)
-    expect(filteredFontCategories.value['Serif']).toBeUndefined()
-    expect(filteredFontCategories.value['Sans-Serif']).toBeDefined()
-    expect(filteredFontCategories.value['System']).toBeDefined()
+  it('loadFont skips fonts without a Fontshare slug', async () => {
+    const { fetchFonts, loadFont } = useGoogleFonts()
+    await fetchFonts()
+
+    loadFont('Arial')
+    loadFont('Some Unknown Font')
+
+    expect(document.querySelectorAll('link[id^="fontshare-"]')).toHaveLength(0)
   })
 
-  it('loadInstalledFonts should update fontCategories', async () => {
+  it('exposes the slug of the selected font', async () => {
+    const { fetchFonts, selectedFont, selectedFontSlug, getFontSlug } = useGoogleFonts()
+    await fetchFonts()
+
+    selectedFont.value = 'Clash Display'
+
+    expect(selectedFontSlug.value).toBe('clash-display')
+    expect(getFontSlug('Zodiak')).toBe('zodiak')
+    expect(getFontSlug('Nope')).toBeNull()
+  })
+
+  it('selectRandomFont always picks a different font', async () => {
+    const { fetchFonts, selectRandomFont, selectedFont } = useGoogleFonts()
+    await fetchFonts()
+
+    for (let i = 0; i < 10; i++) {
+      const before = selectedFont.value
+      selectRandomFont()
+      expect(selectedFont.value).not.toBe(before)
+    }
+  })
+
+  it('selectRandomFont respects the category filter', async () => {
+    const { fetchFonts, selectRandomFont, selectedFont, selectedCategories } = useGoogleFonts()
+    await fetchFonts()
+
+    selectedCategories.value = ['Serif']
+
+    for (let i = 0; i < 10; i++) {
+      selectRandomFont()
+      expect(['Sentient', 'Zodiak']).toContain(selectedFont.value)
+    }
+  })
+
+  it('filteredFontCategories follows selectedCategories', async () => {
+    const { fetchFonts, filteredFontCategories, selectedCategories } = useGoogleFonts()
+    await fetchFonts()
+
+    selectedCategories.value = ['Sans']
+
+    expect(Object.keys(filteredFontCategories.value)).toEqual(['Sans'])
+  })
+
+  it('loadInstalledFonts adds local fonts to the Installed category', async () => {
     const { loadInstalledFonts, fontCategories } = useGoogleFonts()
-    
-    // Mock window.queryLocalFonts
-    // @ts-ignore
+
+    // @ts-expect-error - experimental API mock
     window.queryLocalFonts = vi.fn().mockResolvedValue([
       { family: 'Local Font 1' },
-      { family: 'Local Font 2' }
+      { family: 'Local Font 2' },
+      { family: 'Local Font 1' } // duplicate style entries collapse
     ])
-    
+
     const success = await loadInstalledFonts()
-    
+
     expect(success).toBe(true)
-    expect(fontCategories.value['Installed']).toContain('Local Font 1')
-    expect(fontCategories.value['Installed']).toContain('Local Font 2')
+    expect(fontCategories.value['Installed']).toEqual(['Local Font 1', 'Local Font 2'])
   })
 
-  it('selectRandomFont should respect category filter', () => {
-    const { selectRandomFont, selectedFont, selectedCategories } = useGoogleFonts()
-    
-    // Select only 'Serif'
-    selectedCategories.value = ['Serif']
-    
-    // Try multiple times to ensure we don't get a non-serif font
-    for (let i = 0; i < 10; i++) {
-        selectRandomFont()
-        // We can check if the selected font is in the Serif list
-        // In a real app we might not have access to the internal lists in the test easily without exporting them,
-        // but we know 'Roboto' is Sans-Serif and 'Merriweather' is Serif (from previous knowledge of fonts.ts)
-        // Or better, check category
-        
-        // Actually, let's just cheat and check against the mock/real data if possible,
-        // or just rely on the fact that we know 'Roboto' (default) is Sans-Serif, so it should CHANGE if we select Serif only.
-    }
-    
-    // Since we are using the REAL useGoogleFonts which imports REAL fonts.ts, we can check actual names
-    // 'Roboto' is Sans-Serif.
-    // If we limit to Serif, 'Roboto' should not be selected.
-    // However, if the current font is 'Roboto' and we click random, it should change to a Serif font.
-    
-    const serifFonts = [
-      'Playfair Display',
-      'Merriweather',
-      'Libre Baskerville',
-      'EB Garamond',
-      'Cormorant Garamond',
-      'Lora',
-      'Libre Bodoni',
-      'Bodoni Moda',
-      'Spectral',
-      'Crimson Pro',
-      'DM Serif Display'
-    ]
-    
-    expect(serifFonts).toContain(selectedFont.value)
+  it('handles API failure gracefully', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500 })))
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const { fetchFonts, isLoading } = useGoogleFonts()
+    await fetchFonts()
+
+    expect(isLoading.value).toBe(false)
+    expect(errorSpy).toHaveBeenCalled()
+    errorSpy.mockRestore()
   })
 })

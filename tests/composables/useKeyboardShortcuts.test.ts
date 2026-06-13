@@ -66,12 +66,53 @@ describe('useKeyboardShortcuts', () => {
     })
 
     mount(TestComponent)
-    
+
     const event = new KeyboardEvent('keydown', { code: 'Enter' })
     const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
     window.dispatchEvent(event)
-    
+
     expect(handler).toHaveBeenCalled()
     expect(preventDefaultSpy).toHaveBeenCalled()
+  })
+
+  it('should not fire while typing in an input', () => {
+    const handler = vi.fn()
+    const TestComponent = defineComponent({
+      setup() {
+        useKeyboardShortcuts([{ code: 'Space', handler }])
+        return {}
+      },
+      template: '<div></div>'
+    })
+
+    mount(TestComponent)
+
+    const input = document.createElement('input')
+    document.body.appendChild(input)
+    input.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true }))
+
+    expect(handler).not.toHaveBeenCalled()
+    input.remove()
+  })
+
+  it('should not fire while typing in a contenteditable element', () => {
+    const handler = vi.fn()
+    const TestComponent = defineComponent({
+      setup() {
+        useKeyboardShortcuts([{ code: 'Space', handler }])
+        return {}
+      },
+      template: '<div></div>'
+    })
+
+    mount(TestComponent)
+
+    const editable = document.createElement('div')
+    editable.setAttribute('contenteditable', 'plaintext-only')
+    document.body.appendChild(editable)
+    editable.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true }))
+
+    expect(handler).not.toHaveBeenCalled()
+    editable.remove()
   })
 })

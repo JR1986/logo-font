@@ -1,5 +1,7 @@
 <template>
-  <div class="text-3xl font-black tracking-tighter text-zinc-900 dark:text-white select-none">
-    logo<span class="bg-clip-text text-transparent bg-gradient-to-br from-indigo-600 to-rose-500 dark:from-indigo-400 dark:to-rose-400">font</span>
+  <div class="flex items-baseline select-none leading-none" aria-label="logofont">
+    <span class="text-[22px] md:text-2xl font-black tracking-tight text-ink dark:text-white">logo</span>
+    <span class="text-[22px] md:text-2xl font-serif italic font-medium text-ink dark:text-white">font</span>
+    <span class="ml-0.5 inline-block h-[7px] w-[7px] rounded-full bg-sun" aria-hidden="true"></span>
   </div>
 </template>

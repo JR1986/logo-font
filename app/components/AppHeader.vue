@@ -1,62 +1,59 @@
 <template>
-  <header class="bg-white border-b-2 border-zinc-200 px-4 py-3 md:px-6 md:py-5 flex items-center justify-between shrink-0 z-10 dark:bg-black dark:border-zinc-800">
-    <div class="flex items-center gap-3">
-      <AppLogo class="h-8 md:h-10 w-auto transition-all" />
-    </div>
-    
-    <div class="flex items-center gap-3">
-      <button 
-        @click="toggleColorMode"
-        class="p-2.5 text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-white rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1"
+  <header class="z-30 flex h-14 shrink-0 items-center justify-between border-b border-ink/10 bg-cream/85 px-4 backdrop-blur-md transition-colors md:h-16 md:px-6 dark:border-white/10 dark:bg-stone-950/85">
+    <AppLogo />
+
+    <div class="flex items-center gap-1.5 md:gap-2">
+      <!-- Theme toggle -->
+      <button
+        class="flex h-10 w-10 items-center justify-center rounded-xl text-ink/50 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sun dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-white"
         :aria-label="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         :aria-pressed="colorMode.value === 'dark'"
         title="Toggle dark mode"
+        @click="toggleColorMode"
       >
-        <svg v-if="colorMode.value === 'dark'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+        <svg v-if="colorMode.value === 'dark'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
           <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z" />
         </svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+        <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5">
           <path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clip-rule="evenodd" />
         </svg>
       </button>
 
-      <button 
-        v-if="currentView === 'editor'"
-        @click="$emit('update:currentView', 'matches')"
-        class="hidden md:flex items-center gap-2 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-600 bg-white border-2 border-zinc-200 rounded-xl hover:border-zinc-300 hover:text-rose-600 hover:bg-rose-50 transition-all shadow-sm dark:bg-black dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-rose-950/20 dark:hover:text-rose-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2 active:scale-95 group"
+      <!-- Saved matches -->
+      <button
+        class="relative flex h-10 items-center gap-2 rounded-xl px-3 text-xs font-black uppercase tracking-widest text-ink/60 transition-colors hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sun dark:text-stone-400 dark:hover:bg-white/10 dark:hover:text-white"
+        aria-label="Open saved matches"
+        title="Saved matches"
+        @click="$emit('open-saved')"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-rose-500 dark:text-rose-400 group-hover:scale-110 transition-transform">
-          <path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3.25 7.875 3.25c2.106 0 3.875 1.042 4.946 2.56 1.07-1.518 2.84-2.56 4.946-2.56 3.161 0 5.625 2.072 5.625 5.001 0 3.925-2.438 7.111-4.735 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" :fill="matchesCount > 0 ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" class="h-5 w-5" :class="matchesCount > 0 ? 'text-coral' : ''">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
         </svg>
-        Saved Matches
-        <span v-if="matchesCount > 0" class="ml-2 px-2 py-0.5 text-[10px] font-black bg-zinc-900 text-white rounded-full dark:bg-white dark:text-zinc-900">
+        <span class="hidden md:inline">Saved</span>
+        <span
+          v-if="matchesCount > 0"
+          class="flex h-5 min-w-5 items-center justify-center rounded-full bg-ink px-1.5 text-[10px] font-black text-white dark:bg-white dark:text-ink"
+        >
           {{ matchesCount }}
         </span>
       </button>
 
-      <button 
-        v-else
-        @click="$emit('update:currentView', 'editor')"
-        class="px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-zinc-600 bg-white border-2 border-zinc-200 rounded-xl hover:border-zinc-300 hover:text-zinc-900 hover:bg-zinc-50 transition-all shadow-sm dark:bg-black dark:border-zinc-800 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-900 dark:hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 active:scale-95"
-      >
-        ← Back to Editor
-      </button>
+      <ExportMenu @select="$emit('export', $event)" />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-interface Props {
-  currentView: 'editor' | 'matches'
+import type { ExportKind } from '~/components/ExportMenu.vue'
+
+defineProps<{
   matchesCount: number
-}
+}>()
 
-interface Emits {
-  (e: 'update:currentView', value: 'editor' | 'matches'): void
-}
-
-defineProps<Props>()
-defineEmits<Emits>()
+defineEmits<{
+  (e: 'open-saved'): void
+  (e: 'export', kind: ExportKind): void
+}>()
 
 const colorMode = useColorMode()
 
